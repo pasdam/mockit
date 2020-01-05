@@ -11,8 +11,10 @@ func verifyValues(expectedCount int, expectedValueProvider func(int) reflect.Typ
 	}
 
 	for i := 0; i < expectedCount; i++ {
-		if expectedValueProvider(i) != actualValues[i].Type() {
-			return fmt.Errorf("Type at index %d is different than expected (%v): actual type %v", i, expectedValueProvider(i).Name(), actualValues[i].Type().Name())
+		expected := expectedValueProvider(i)
+		actual := actualValues[i].Type()
+		if expected != actual && !actual.AssignableTo(expected) {
+			return fmt.Errorf("Type at index %d is different than expected (%v): actual type %v", i, expectedValueProvider(i), actualValues[i].Type())
 		}
 	}
 

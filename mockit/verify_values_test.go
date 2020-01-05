@@ -45,6 +45,15 @@ func Test_verify_values(t *testing.T) {
 			},
 			wantErr: nil,
 		},
+		{
+			name: "Different types, but assignable",
+			args: args{
+				expectedCount:         1,
+				expectedValueProvider: reflect.TypeOf(os.Setenv).Out,
+				actualValues:          []reflect.Value{reflect.ValueOf(errors.New("some-error"))},
+			},
+			wantErr: nil,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
