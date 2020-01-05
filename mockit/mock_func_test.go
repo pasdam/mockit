@@ -30,6 +30,24 @@ func Test_MockFunc_ShouldReturnExpectedOutputIfAMatchingCallIsFound(t *testing.T
 	m.Verify(t, []interface{}{"matching-argument"})
 }
 
+func Test_MockFunc_ShouldDisableAndRestoreAMock(t *testing.T) {
+	m := NewMockFunc(t, filepath.Base).(*mockFunc)
+	m.Mock(t, []interface{}{"matching-argument"}, []interface{}{"some-out"})
+
+	assert.Equal(t, "some-out", filepath.Base("matching-argument"))
+
+	m.UnMock()
+
+	assert.Equal(t, "matching-argument", filepath.Base("matching-argument"))
+
+	m.Restore()
+
+	assert.Equal(t, "some-out", filepath.Base("matching-argument"))
+
+	assert.Equal(t, 2, int(m.calls[0].count))
+	m.Verify(t, []interface{}{"matching-argument"})
+}
+
 func Test_NewMockFunc(t *testing.T) {
 	type args struct {
 		t      *testing.T

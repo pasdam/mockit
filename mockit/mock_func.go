@@ -12,6 +12,7 @@ type mockFunc struct {
 	calls      []*call
 	defaultOut []reflect.Value
 	typeOf     reflect.Type
+	guard      *monkey.PatchGuard
 }
 
 // NewMockFunc creates a new function mock instance
@@ -30,7 +31,7 @@ func NewMockFunc(t *testing.T, target interface{}) Mock {
 
 	replacement := reflect.MakeFunc(reflect.TypeOf(target), mock.makeCall)
 
-	monkey.Patch(target, replacement.Interface())
+	mock.guard = monkey.Patch(target, replacement.Interface())
 
 	return mock
 }
@@ -59,6 +60,14 @@ func (m *mockFunc) Mock(t *testing.T, in []interface{}, out []interface{}) {
 	} else {
 		m.calls = append(m.calls, newCall)
 	}
+}
+
+func (m *mockFunc) Restore() {
+	m.guard.Restore()
+}
+
+func (m *mockFunc) UnMock() {
+	m.guard.Unpatch()
 }
 
 func (m *mockFunc) Verify(t *testing.T, in []interface{}) {
