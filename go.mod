@@ -1,4 +1,4 @@
-module gitlab.com/pasdam/mockit
+module github.com/pasdam/mockit
 
 go 1.13
 
