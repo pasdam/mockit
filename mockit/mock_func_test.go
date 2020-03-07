@@ -20,6 +20,15 @@ func Test_MockFunc_ShouldReturnDefaultOutputIfNoMatchingCallIsFound(t *testing.T
 	m.Verify(t, []interface{}{"non-matching-argument"})
 }
 
+func Test_MockFunc_ShouldReturnAZeroValueIfTheMockArgumentIsNil(t *testing.T) {
+	m := NewMockFunc(t, filepath.Walk).(*mockFunc)
+	m.Mock(t, []interface{}{"arg", nil}, []interface{}{nil})
+
+	assert.Nil(t, filepath.Walk("arg", nil))
+	assert.Equal(t, 1, len(m.calls))
+	m.Verify(t, []interface{}{"arg", nil})
+}
+
 func Test_MockFunc_ShouldReturnExpectedOutputIfAMatchingCallIsFound(t *testing.T) {
 	m := NewMockFunc(t, filepath.Base).(*mockFunc)
 	m.Mock(t, []interface{}{"matching-argument"}, []interface{}{"some-out"})

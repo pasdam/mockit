@@ -38,8 +38,8 @@ func NewMockFunc(t *testing.T, target interface{}) Mock {
 
 func (m *mockFunc) Mock(t *testing.T, in []interface{}, out []interface{}) {
 	newCall := &call{
-		in:  interfacesArrayToValuesArray(in),
-		out: interfacesArrayToValuesArray(out),
+		in:  interfacesArrayToValuesArray(in, m.typeOf.In),
+		out: interfacesArrayToValuesArray(out, m.typeOf.Out),
 	}
 
 	err := verifyValues(m.typeOf.NumIn(), m.typeOf.In, newCall.in)
@@ -71,7 +71,7 @@ func (m *mockFunc) UnMock() {
 }
 
 func (m *mockFunc) Verify(t *testing.T, in []interface{}) {
-	inValues := interfacesArrayToValuesArray(in)
+	inValues := interfacesArrayToValuesArray(in, m.typeOf.In)
 	index, err := m.findCall(inValues)
 	if err != nil || m.calls[index].count < 1 {
 		t.Error("Excepted call didn't happen")

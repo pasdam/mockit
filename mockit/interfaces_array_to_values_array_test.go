@@ -1,9 +1,14 @@
 package mockit
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
+
+func mockValueProvider(i int) reflect.Type {
+	return reflect.TypeOf(fmt.Sprintf("arg%d", i))
+}
 
 func Test_interfacesArrayToValuesArray(t *testing.T) {
 	zeroVal := reflect.Value{}
@@ -41,12 +46,12 @@ func Test_interfacesArrayToValuesArray(t *testing.T) {
 			args: args{
 				args: []interface{}{nil, (*error)(nil)},
 			},
-			want: []reflect.Value{reflect.Value{}, reflect.ValueOf((*error)(nil))},
+			want: []reflect.Value{reflect.ValueOf(""), reflect.ValueOf((*error)(nil))},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := interfacesArrayToValuesArray(tt.args.args)
+			got := interfacesArrayToValuesArray(tt.args.args, mockValueProvider)
 			if len(got) != len(tt.want) {
 				t.Errorf("Expected result length (%d) is different than the actual one (%d)", len(got), len(tt.want))
 			}

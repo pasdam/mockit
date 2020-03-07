@@ -4,11 +4,15 @@ import (
 	"reflect"
 )
 
-func interfacesArrayToValuesArray(args []interface{}) []reflect.Value {
+func interfacesArrayToValuesArray(args []interface{}, defaultValueProvider func(int) reflect.Type) []reflect.Value {
 	result := make([]reflect.Value, 0, len(args))
 
-	for _, arg := range args {
-		result = append(result, reflect.ValueOf(arg))
+	for i := 0; i < len(args); i++ {
+		if args[i] == nil {
+			result = append(result, reflect.Zero(defaultValueProvider(i)))
+		} else {
+			result = append(result, reflect.ValueOf(args[i]))
+		}
 	}
 
 	return result
