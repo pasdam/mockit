@@ -6,6 +6,7 @@ import (
 )
 
 func Test_interfacesArrayToValuesArray(t *testing.T) {
+	zeroVal := reflect.Value{}
 	type args struct {
 		args []interface{}
 	}
@@ -35,6 +36,13 @@ func Test_interfacesArrayToValuesArray(t *testing.T) {
 			},
 			want: []reflect.Value{reflect.ValueOf("some-arg"), reflect.ValueOf(1234)},
 		},
+		{
+			name: "Nil arguments",
+			args: args{
+				args: []interface{}{nil, (*error)(nil)},
+			},
+			want: []reflect.Value{reflect.Value{}, reflect.ValueOf((*error)(nil))},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -43,7 +51,7 @@ func Test_interfacesArrayToValuesArray(t *testing.T) {
 				t.Errorf("Expected result length (%d) is different than the actual one (%d)", len(got), len(tt.want))
 			}
 			for i := 0; i < len(tt.want); i++ {
-				if tt.want[i].Interface() != got[i].Interface() {
+				if tt.want[i] == zeroVal && got[i] != zeroVal || tt.want[i] != zeroVal && (got[i] == zeroVal || got[i] != zeroVal && tt.want[i].Interface() != got[i].Interface()) {
 					t.Errorf("interfaceArrayToValue() = %v, want %v", got, tt.want)
 					return
 				}

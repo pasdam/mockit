@@ -37,6 +37,15 @@ func Test_verify_values(t *testing.T) {
 			wantErr: errors.New("Type at index 1 is different than expected (string): actual type int"),
 		},
 		{
+			name: "Different types, but assignable",
+			args: args{
+				expectedCount:         1,
+				expectedValueProvider: reflect.TypeOf(os.Setenv).Out,
+				actualValues:          []reflect.Value{reflect.ValueOf(errors.New("some-error"))},
+			},
+			wantErr: nil,
+		},
+		{
 			name: "Same types",
 			args: args{
 				expectedCount:         2,
@@ -46,19 +55,37 @@ func Test_verify_values(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "Different types, but assignable",
+			name: "Interface type, nil value",
 			args: args{
 				expectedCount:         1,
 				expectedValueProvider: reflect.TypeOf(os.Setenv).Out,
-				actualValues:          []reflect.Value{reflect.ValueOf(errors.New("some-error"))},
+				actualValues:          []reflect.Value{reflect.Value{}},
 			},
 			wantErr: nil,
+		},
+		{
+			name: "Pointer type, nil value",
+			args: args{
+				expectedCount:         1,
+				expectedValueProvider: reflect.TypeOf(os.Environ).Out,
+				actualValues:          []reflect.Value{reflect.Value{}},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "Nil value for a non interface/pointer type",
+			args: args{
+				expectedCount:         1,
+				expectedValueProvider: reflect.TypeOf(os.Getpid).Out,
+				actualValues:          []reflect.Value{reflect.Value{}},
+			},
+			wantErr: errors.New("Cannot assign nil at index 0 to the type int"),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := verifyValues(tt.args.expectedCount, tt.args.expectedValueProvider, tt.args.actualValues)
-			if err != tt.wantErr && err.Error() != tt.wantErr.Error() {
+			if tt.wantErr == nil && err != nil || tt.wantErr != nil && (err == nil || err != nil && tt.wantErr.Error() != err.Error()) {
 				t.Errorf("verify_values() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

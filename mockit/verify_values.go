@@ -10,11 +10,23 @@ func verifyValues(expectedCount int, expectedValueProvider func(int) reflect.Typ
 		return fmt.Errorf("Expected values count (%d) is different than the actual size (%d)", expectedCount, len(actualValues))
 	}
 
+	emptyVal := reflect.Value{}
+
 	for i := 0; i < expectedCount; i++ {
 		expected := expectedValueProvider(i)
-		actual := actualValues[i].Type()
+		actualValue := actualValues[i]
+		if actualValue == emptyVal {
+			if canBeNil(expected.Kind()) {
+				continue
+
+			} else {
+				return fmt.Errorf("Cannot assign nil at index %d to the type %v", i, expected)
+			}
+		}
+
+		actual := actualValue.Type()
 		if expected != actual && !actual.AssignableTo(expected) {
-			return fmt.Errorf("Type at index %d is different than expected (%v): actual type %v", i, expectedValueProvider(i), actualValues[i].Type())
+			return fmt.Errorf("Type at index %d is different than expected (%v): actual type %v", i, expected, actualValues[i].Type())
 		}
 	}
 

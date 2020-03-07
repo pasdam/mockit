@@ -35,6 +35,13 @@ func Test_valuesToInterfaceArray(t *testing.T) {
 			},
 			want: []interface{}{"some-arg", 1234},
 		},
+		{
+			name: "Nil values",
+			args: args{
+				args: []reflect.Value{reflect.ValueOf(nil), reflect.Value{}},
+			},
+			want: []interface{}{nil, nil},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
