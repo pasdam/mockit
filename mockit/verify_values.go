@@ -3,6 +3,8 @@ package mockit
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/pasdam/mockit/matchers/argument"
 )
 
 func verifyValues(expectedCount int, expectedValueProvider func(int) reflect.Type, actualValues []reflect.Value) error {
@@ -10,6 +12,8 @@ func verifyValues(expectedCount int, expectedValueProvider func(int) reflect.Typ
 		return fmt.Errorf("Expected values count (%d) is different than the actual size (%d)", expectedCount, len(actualValues))
 	}
 
+	var matcher argument.Matcher
+	matcherType := reflect.TypeOf(matcher)
 	emptyVal := reflect.Value{}
 
 	for i := 0; i < expectedCount; i++ {
@@ -22,6 +26,9 @@ func verifyValues(expectedCount int, expectedValueProvider func(int) reflect.Typ
 			} else {
 				return fmt.Errorf("Cannot assign nil at index %d to the type %v", i, expected)
 			}
+
+		} else if actualValue.Type().AssignableTo(matcherType) {
+			continue
 		}
 
 		actual := actualValue.Type()

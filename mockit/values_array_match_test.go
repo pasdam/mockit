@@ -3,6 +3,8 @@ package mockit
 import (
 	"reflect"
 	"testing"
+
+	"github.com/pasdam/mockit/matchers/argument"
 )
 
 func Test_inputsMatch(t *testing.T) {
@@ -43,6 +45,14 @@ func Test_inputsMatch(t *testing.T) {
 			name: "Same length and content",
 			args: args{
 				expected: []reflect.Value{reflect.ValueOf("some-content")},
+				actual:   []reflect.Value{reflect.ValueOf("some-content")},
+			},
+			want: true,
+		},
+		{
+			name: "With matcher",
+			args: args{
+				expected: []reflect.Value{reflect.ValueOf(argument.Any)},
 				actual:   []reflect.Value{reflect.ValueOf("some-content")},
 			},
 			want: true,

@@ -5,6 +5,8 @@ import (
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/pasdam/mockit/matchers/argument"
 )
 
 func Test_verify_values(t *testing.T) {
@@ -80,6 +82,15 @@ func Test_verify_values(t *testing.T) {
 				actualValues:          []reflect.Value{reflect.Value{}},
 			},
 			wantErr: errors.New("Cannot assign nil at index 0 to the type int"),
+		},
+		{
+			name: "With matcher",
+			args: args{
+				expectedCount:         1,
+				expectedValueProvider: reflect.TypeOf(os.Getpid).Out,
+				actualValues:          []reflect.Value{reflect.ValueOf(argument.Any)},
+			},
+			wantErr: nil,
 		},
 	}
 	for _, tt := range tests {

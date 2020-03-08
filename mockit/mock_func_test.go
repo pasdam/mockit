@@ -6,8 +6,22 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/pasdam/mockit/matchers/argument"
 	"github.com/stretchr/testify/assert"
 )
+
+func Test_MockFunc_ShouldUseArgumentMatcher(t *testing.T) {
+	m := NewMockFunc(t, filepath.Base).(*mockFunc)
+	m.Mock(t, []interface{}{argument.Any}, []interface{}{"result"})
+
+	assert.Equal(t, "result", filepath.Base("argument-1"))
+	assert.Equal(t, "result", filepath.Base("argument-2"))
+	assert.Equal(t, "result", filepath.Base("argument-3"))
+	assert.Equal(t, 1, len(m.calls))
+	m.Verify(t, []interface{}{"argument-1"})
+	m.Verify(t, []interface{}{"argument-2"})
+	m.Verify(t, []interface{}{"argument-3"})
+}
 
 func Test_MockFunc_ShouldReturnDefaultOutputIfNoMatchingCallIsFound(t *testing.T) {
 	m := NewMockFunc(t, filepath.Base).(*mockFunc)
