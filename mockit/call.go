@@ -5,7 +5,6 @@ import (
 )
 
 type call struct {
-	in    []reflect.Value
-	out   []reflect.Value
-	count uint
+	in  []reflect.Value
+	out []reflect.Value
 }

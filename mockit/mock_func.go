@@ -9,6 +9,7 @@ import (
 )
 
 type mockFunc struct {
+	mocks      []*call
 	calls      []*call
 	defaultOut []reflect.Value
 	typeOf     reflect.Type
@@ -53,12 +54,13 @@ func (m *mockFunc) Mock(t *testing.T, in []interface{}, out []interface{}) {
 		return
 	}
 
-	index, err := m.findCall(newCall.in)
+	index, err := findCall(m.mocks, newCall.in, func(fromCalls, in []reflect.Value) bool {
+		return callsMatch(fromCalls, in, false)
+	})
 	if err == nil {
-		newCall.count = m.calls[index].count
-		m.calls[index] = newCall
+		m.mocks[index] = newCall
 	} else {
-		m.calls = append(m.calls, newCall)
+		m.mocks = append(m.mocks, newCall)
 	}
 }
 
@@ -72,18 +74,20 @@ func (m *mockFunc) UnMock() {
 
 func (m *mockFunc) Verify(t *testing.T, in []interface{}) {
 	inValues := interfacesArrayToValuesArray(in, m.typeOf.In)
-	index, err := m.findCall(inValues)
-	if err != nil || m.calls[index].count < 1 {
+	_, err := findCall(m.calls, inValues, func(fromCalls, in []reflect.Value) bool {
+		return callsMatch(in, fromCalls, true)
+	})
+	if err != nil {
 		t.Error("Excepted call didn't happen")
 	}
 }
 
-func (m *mockFunc) findCall(in []reflect.Value) (int, error) {
-	for i := 0; i < len(m.calls); i++ {
-		if len(m.calls[i].in) != len(in) {
-			break
-		}
-		if valuesArrayMatch(m.calls[i].in, in) {
+// Mock: calls=m.mocks, in=mock.in
+// Verify: calls=m.calls, in=expectedIn
+
+func findCall(calls []*call, in []reflect.Value, matcher func(fromCalls, in []reflect.Value) bool) (int, error) {
+	for i := 0; i < len(calls); i++ {
+		if matcher(calls[i].in, in) {
 			return i, nil
 		}
 	}
@@ -92,22 +96,20 @@ func (m *mockFunc) findCall(in []reflect.Value) (int, error) {
 }
 
 func (m *mockFunc) makeCall(in []reflect.Value) []reflect.Value {
-	call := m.recordCall(in)
-	if call.out != nil {
-		return call.out
+	m.recordCall(in)
+
+	index, err := findCall(m.mocks, in, func(fromCalls, in []reflect.Value) bool {
+		return callsMatch(fromCalls, in, true)
+	})
+	if err == nil {
+		return m.mocks[index].out
 	}
 
 	return m.defaultOut
 }
 
-func (m *mockFunc) recordCall(in []reflect.Value) *call {
-	index, err := m.findCall(in)
-	if err != nil {
-		m.calls = append(m.calls, &call{
-			in: in,
-		})
-		index = len(m.calls) - 1
-	}
-	m.calls[index].count = m.calls[index].count + 1
-	return m.calls[index]
+func (m *mockFunc) recordCall(in []reflect.Value) {
+	m.calls = append(m.calls, &call{
+		in: in,
+	})
 }

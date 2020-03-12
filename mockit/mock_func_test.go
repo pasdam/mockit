@@ -17,7 +17,7 @@ func Test_MockFunc_ShouldUseArgumentMatcher(t *testing.T) {
 	assert.Equal(t, "result", filepath.Base("argument-1"))
 	assert.Equal(t, "result", filepath.Base("argument-2"))
 	assert.Equal(t, "result", filepath.Base("argument-3"))
-	assert.Equal(t, 1, len(m.calls))
+	assert.Equal(t, 3, len(m.calls))
 	m.Verify(t, []interface{}{"argument-1"})
 	m.Verify(t, []interface{}{"argument-2"})
 	m.Verify(t, []interface{}{"argument-3"})
@@ -30,7 +30,7 @@ func Test_MockFunc_ShouldReturnDefaultOutputIfNoMatchingCallIsFound(t *testing.T
 	m.Mock(t, []interface{}{"argument-3"}, []interface{}{"out-3"})
 
 	assert.Equal(t, "", filepath.Base("non-matching-argument"))
-	assert.Equal(t, 4, len(m.calls))
+	assert.Equal(t, 1, len(m.calls))
 	m.Verify(t, []interface{}{"non-matching-argument"})
 }
 
@@ -49,7 +49,6 @@ func Test_MockFunc_ShouldReturnExpectedOutputIfAMatchingCallIsFound(t *testing.T
 
 	assert.Equal(t, "some-out", filepath.Base("matching-argument"))
 	assert.Equal(t, 1, len(m.calls))
-	assert.Equal(t, 1, int(m.calls[0].count))
 	m.Verify(t, []interface{}{"matching-argument"})
 }
 
@@ -67,7 +66,7 @@ func Test_MockFunc_ShouldDisableAndRestoreAMock(t *testing.T) {
 
 	assert.Equal(t, "some-out", filepath.Base("matching-argument"))
 
-	assert.Equal(t, 2, int(m.calls[0].count))
+	assert.Equal(t, 2, len(m.calls))
 	m.Verify(t, []interface{}{"matching-argument"})
 }
 
@@ -121,7 +120,7 @@ func Test_NewMockFunc(t *testing.T) {
 
 func Test_mockFunc_Mock(t *testing.T) {
 	type fields struct {
-		calls      []*call
+		mocks      []*call
 		defaultOut []reflect.Value
 	}
 	type args struct {
@@ -132,52 +131,52 @@ func Test_mockFunc_Mock(t *testing.T) {
 		name          string
 		fields        fields
 		args          args
-		expectedCalls int
+		expectedMocks int
 		shouldFail    bool
 	}{
 		{
 			name: "Invalid in",
 			fields: fields{
-				calls:      []*call{},
+				mocks:      nil,
 				defaultOut: []reflect.Value{},
 			},
 			args: args{
 				in:  []interface{}{"some-in", "some-additional-in"},
 				out: []interface{}{"some-out"},
 			},
-			expectedCalls: 0,
+			expectedMocks: 0,
 			shouldFail:    true,
 		},
 		{
 			name: "Invalid out",
 			fields: fields{
-				calls:      []*call{},
+				mocks:      nil,
 				defaultOut: []reflect.Value{},
 			},
 			args: args{
 				in:  []interface{}{"some-in"},
 				out: []interface{}{"some-out", "some-additional-out"},
 			},
-			expectedCalls: 0,
+			expectedMocks: 0,
 			shouldFail:    true,
 		},
 		{
 			name: "Valid mock call",
 			fields: fields{
-				calls:      []*call{},
+				mocks:      nil,
 				defaultOut: []reflect.Value{},
 			},
 			args: args{
 				in:  []interface{}{"some-in"},
 				out: []interface{}{"some-out"},
 			},
-			expectedCalls: 1,
+			expectedMocks: 1,
 			shouldFail:    false,
 		},
 		{
 			name: "Override existing call",
 			fields: fields{
-				calls: []*call{
+				mocks: []*call{
 					&call{
 						in:  []reflect.Value{reflect.ValueOf("some-in")},
 						out: []reflect.Value{reflect.ValueOf("some-old-out")},
@@ -189,7 +188,7 @@ func Test_mockFunc_Mock(t *testing.T) {
 				in:  []interface{}{"some-in"},
 				out: []interface{}{"some-out"},
 			},
-			expectedCalls: 1,
+			expectedMocks: 1,
 			shouldFail:    false,
 		},
 	}
@@ -197,7 +196,7 @@ func Test_mockFunc_Mock(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mockT := new(testing.T)
 			m := &mockFunc{
-				calls:      tt.fields.calls,
+				mocks:      tt.fields.mocks,
 				defaultOut: tt.fields.defaultOut,
 				typeOf:     reflect.TypeOf(filepath.Base),
 			}
@@ -210,9 +209,7 @@ func Test_mockFunc_Mock(t *testing.T) {
 					t.Errorf("Verify wasn't expected to fail, but it did")
 				}
 			}
-			if tt.expectedCalls != len(m.calls) {
-				t.Errorf("Expected number of calls %d is different than actual (%d)", tt.expectedCalls, len(m.calls))
-			}
+			assert.Equal(t, tt.expectedMocks, len(m.mocks))
 		})
 	}
 }
@@ -233,25 +230,9 @@ func Test_mockFunc_Verify(t *testing.T) {
 		shouldFail bool
 	}{
 		{
-			name: "Not mocked",
-			fields: fields{
-				calls:      []*call{},
-				defaultOut: []reflect.Value{reflect.ValueOf("default-out-value")},
-				typeOf:     reflect.TypeOf(filepath.Base),
-			},
-			args: args{
-				in: []interface{}{"some-arg"},
-			},
-			shouldFail: true,
-		},
-		{
 			name: "Not called",
 			fields: fields{
-				calls: []*call{&call{
-					in:    []reflect.Value{reflect.ValueOf("some-arg")},
-					out:   []reflect.Value{reflect.ValueOf("mocked-out-value")},
-					count: 0,
-				}},
+				calls:      nil,
 				defaultOut: []reflect.Value{reflect.ValueOf("default-out-value")},
 				typeOf:     reflect.TypeOf(filepath.Base),
 			},
@@ -279,9 +260,8 @@ func Test_mockFunc_Verify(t *testing.T) {
 			name: "Called",
 			fields: fields{
 				calls: []*call{&call{
-					in:    []reflect.Value{reflect.ValueOf("some-arg")},
-					out:   []reflect.Value{reflect.ValueOf("mocked-out-value")},
-					count: 1,
+					in:  []reflect.Value{reflect.ValueOf("some-arg")},
+					out: []reflect.Value{reflect.ValueOf("mocked-out-value")},
 				}},
 				defaultOut: []reflect.Value{reflect.ValueOf("default-out-value")},
 				typeOf:     reflect.TypeOf(filepath.Base),
@@ -331,7 +311,7 @@ func Test_mockFunc_findCall(t *testing.T) {
 		{
 			name: "Call not found",
 			fields: fields{
-				calls:      []*call{},
+				calls:      nil,
 				defaultOut: []reflect.Value{reflect.ValueOf("default-out-value")},
 				typeOf:     reflect.TypeOf(filepath.Base),
 			},
@@ -381,7 +361,9 @@ func Test_mockFunc_findCall(t *testing.T) {
 				defaultOut: tt.fields.defaultOut,
 				typeOf:     tt.fields.typeOf,
 			}
-			got, err := m.findCall(tt.args.in)
+			got, err := findCall(m.calls, tt.args.in, func(fromCalls, in []reflect.Value) bool {
+				return callsMatch(fromCalls, in, false)
+			})
 			if err != tt.wantErr && err.Error() != tt.wantErr.Error() {
 				t.Errorf("mockFunc.findCall() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -395,7 +377,7 @@ func Test_mockFunc_findCall(t *testing.T) {
 
 func Test_mockFunc_makeCall(t *testing.T) {
 	type fields struct {
-		calls      []*call
+		mocks      []*call
 		defaultOut []reflect.Value
 		typeOf     reflect.Type
 	}
@@ -412,7 +394,7 @@ func Test_mockFunc_makeCall(t *testing.T) {
 		{
 			name: "Default output",
 			fields: fields{
-				calls:      []*call{},
+				mocks:      nil,
 				defaultOut: []reflect.Value{reflect.ValueOf("default-out-value")},
 				typeOf:     reflect.TypeOf(filepath.Base),
 			},
@@ -424,7 +406,7 @@ func Test_mockFunc_makeCall(t *testing.T) {
 		{
 			name: "Mocked output",
 			fields: fields{
-				calls: []*call{&call{
+				mocks: []*call{&call{
 					in:  []reflect.Value{reflect.ValueOf("some-arg")},
 					out: []reflect.Value{reflect.ValueOf("mocked-out-value")},
 				}},
@@ -440,7 +422,7 @@ func Test_mockFunc_makeCall(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &mockFunc{
-				calls:      tt.fields.calls,
+				mocks:      tt.fields.mocks,
 				defaultOut: tt.fields.defaultOut,
 				typeOf:     tt.fields.typeOf,
 			}
@@ -450,9 +432,9 @@ func Test_mockFunc_makeCall(t *testing.T) {
 			if len(m.calls) != 1 {
 				t.Errorf("Expected 1 mocked call, got %d", len(m.calls))
 			}
-			if m.calls[0].count != 1 {
-				t.Errorf("Expected 1 recorded call, got %d", len(m.calls))
-			}
+			// if m.calls[0].count != 1 {
+			// 	t.Errorf("Expected 1 recorded call, got %d", len(m.calls))
+			// }
 		})
 	}
 }
@@ -474,7 +456,7 @@ func Test_mockFunc_recordCall(t *testing.T) {
 		{
 			name: "Default output",
 			fields: fields{
-				calls:      []*call{},
+				calls:      nil,
 				defaultOut: []reflect.Value{reflect.ValueOf("default-out-value")},
 				typeOf:     reflect.TypeOf(filepath.Base),
 			},
@@ -504,16 +486,14 @@ func Test_mockFunc_recordCall(t *testing.T) {
 				defaultOut: tt.fields.defaultOut,
 				typeOf:     tt.fields.typeOf,
 			}
-			got := m.recordCall(tt.args.in)
-			if len(m.calls) != 1 {
-				t.Errorf("Expected 1 mocked call, got %d", len(m.calls))
-			}
-			if m.calls[0] != got {
-				t.Errorf("mockFunc.recordCall() = %v, want %v", got, m.calls[0])
-			}
-			if m.calls[0].count != 1 {
-				t.Errorf("Expected 1 recorded call, got %d", len(m.calls))
-			}
+			m.recordCall(tt.args.in)
+			expectedCallsCount := len(tt.fields.calls) + 1
+			assert.Equal(t, expectedCallsCount, len(m.calls))
+			assert.Equal(t, tt.args.in, m.calls[expectedCallsCount-1].in)
+			assert.Nil(t, m.calls[expectedCallsCount-1].out)
+			// if m.calls[0].count != 1 {
+			// 	t.Errorf("Expected 1 recorded call, got %d", len(m.calls))
+			// }
 		})
 	}
 }
