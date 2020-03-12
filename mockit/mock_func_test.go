@@ -426,7 +426,7 @@ func Test_mockFunc_makeCall(t *testing.T) {
 				defaultOut: tt.fields.defaultOut,
 				typeOf:     tt.fields.typeOf,
 			}
-			if got := m.makeCall(tt.args.in); !valuesArrayMatch(got, tt.want) {
+			if got := m.makeCall(tt.args.in); !callsMatch(got, tt.want, true) {
 				t.Errorf("mockFunc.makeCall() = %v, want %v", got, tt.want)
 			}
 			if len(m.calls) != 1 {
