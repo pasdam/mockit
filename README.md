@@ -48,7 +48,7 @@ will make `filepath.Base("some-argument")` call the real method.
 
 ### Argument matcher
 
-It is also possible to use argument matchers, to have generic mocks. At the moment there only one matcher implemented, and it matches any argument:
+It is also possible to use argument matchers, to implement generic behaviors. At the moment there is only one matcher implemented, and it matches any argument:
 
 ```go
 m := NewFuncMock(t, filepath.Base)
