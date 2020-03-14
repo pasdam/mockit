@@ -18,7 +18,7 @@ To mock a function:
 
 ```go
 m := NewFuncMock(t, filepath.Base).(*funcMock)
-m.With([]interface{}{"some-argument"}).Return([]interface{}{"result"})
+m.With("some-argument").Return("result")
 ```
 
 This will make sure that when `filepath.Base` is called with the argument `some-argument`, it will return `result`.
@@ -28,20 +28,20 @@ When a method is mocked and a matching call is not found (i.e. arguments are dif
 It is possible to make the mock call the real method:
 
 ```go
-m.With([]interface{}{"some-argument"}).CallRealMethod()
+m.With("some-argument").CallRealMethod()
 ```
 
 or return zero values:
 
 ```go
-m.With([]interface{}{"some-argument"}).ReturnDefaults()
+m.With("some-argument").ReturnDefaults()
 ```
 
 Mocks are matched in order, which means that:
 
 ```go
-m.With([]interface{}{"some-argument"}).CallRealMethod()
-m.With([]interface{}{"some-argument"}).ReturnDefaults()
+m.With("some-argument").CallRealMethod()
+m.With("some-argument").ReturnDefaults()
 ```
 
 will make `filepath.Base("some-argument")` call the real method.
@@ -52,7 +52,7 @@ It is also possible to use argument matchers, to have generic mocks. At the mome
 
 ```go
 m := NewFuncMock(t, filepath.Base).(*funcMock)
-m.With([]interface{}{argument.any}).Return([]interface{}{"result"})
+m.With(argument.any).Return("result")
 ```
 
 This will make `filepath.Base` return `result` for any input.
@@ -63,7 +63,7 @@ It is possible to temporary disable a mock:
 
 ```go
 m := NewFuncMock(t, filepath.Base).(*funcMock)
-m.With([]interface{}{"matching-argument"}).Return([]interface{}{"some-out"})
+m.With("matching-argument").Return("some-out")
 
 // ... Do something with the mock
 

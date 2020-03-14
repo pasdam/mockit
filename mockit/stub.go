@@ -7,7 +7,7 @@ type Stub interface {
 	CallRealMethod()
 
 	// Return makes sure the mock to return the specified values
-	Return(values []interface{})
+	Return(values ...interface{})
 
 	// ReturnDefaults makes sure the mock to return the default outputs (zero values)
 	ReturnDefaults()

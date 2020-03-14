@@ -14,8 +14,8 @@ type Mock interface {
 	Enable()
 
 	// Verify fails the test if a call with the specified arguments wasn't made
-	Verify(t *testing.T, in []interface{})
+	Verify(t *testing.T, in ...interface{})
 
 	// With configures the mock to respond to the specified arguments
-	With(values []interface{}) Stub
+	With(values ...interface{}) Stub
 }

@@ -12,49 +12,49 @@ import (
 
 func Test_funcMock_ShouldUseArgumentMatcher(t *testing.T) {
 	m := NewFuncMock(t, filepath.Base).(*funcMock)
-	m.With([]interface{}{argument.Any}).Return([]interface{}{"result"})
+	m.With(argument.Any).Return("result")
 
 	assert.Equal(t, "result", filepath.Base("argument-1"))
 	assert.Equal(t, "result", filepath.Base("argument-2"))
 	assert.Equal(t, "result", filepath.Base("argument-3"))
 	assert.Equal(t, 3, len(m.calls))
-	m.Verify(t, []interface{}{"argument-1"})
-	m.Verify(t, []interface{}{"argument-2"})
-	m.Verify(t, []interface{}{"argument-3"})
+	m.Verify(t, "argument-1")
+	m.Verify(t, "argument-2")
+	m.Verify(t, "argument-3")
 }
 
 func Test_funcMock_ShouldReturnDefaultOutputIfNoMatchingCallIsFound(t *testing.T) {
 	m := NewFuncMock(t, filepath.Base).(*funcMock)
-	m.With([]interface{}{"argument-1"}).Return([]interface{}{"out-1"})
-	m.With([]interface{}{"argument-2"}).Return([]interface{}{"out-2"})
-	m.With([]interface{}{"argument-3"}).Return([]interface{}{"out-3"})
+	m.With("argument-1").Return("out-1")
+	m.With("argument-2").Return("out-2")
+	m.With("argument-3").Return("out-3")
 
 	assert.Equal(t, "", filepath.Base("non-matching-argument"))
 	assert.Equal(t, 1, len(m.calls))
-	m.Verify(t, []interface{}{"non-matching-argument"})
+	m.Verify(t, "non-matching-argument")
 }
 
 func Test_funcMock_ShouldReturnAZeroValueIfTheMockArgumentIsNil(t *testing.T) {
 	m := NewFuncMock(t, filepath.Walk).(*funcMock)
-	m.With([]interface{}{"arg", nil}).Return([]interface{}{nil})
+	m.With("arg", nil).Return(nil)
 
 	assert.Nil(t, filepath.Walk("arg", nil))
 	assert.Equal(t, 1, len(m.calls))
-	m.Verify(t, []interface{}{"arg", nil})
+	m.Verify(t, "arg", nil)
 }
 
 func Test_funcMock_ShouldReturnExpectedOutputIfAMatchingCallIsFound(t *testing.T) {
 	m := NewFuncMock(t, filepath.Base).(*funcMock)
-	m.With([]interface{}{"matching-argument"}).Return([]interface{}{"some-out"})
+	m.With("matching-argument").Return("some-out")
 
 	assert.Equal(t, "some-out", filepath.Base("matching-argument"))
 	assert.Equal(t, 1, len(m.calls))
-	m.Verify(t, []interface{}{"matching-argument"})
+	m.Verify(t, "matching-argument")
 }
 
 func Test_funcMock_ShouldDisableAndRestoreAMock(t *testing.T) {
 	m := NewFuncMock(t, filepath.Base).(*funcMock)
-	m.With([]interface{}{"matching-argument"}).Return([]interface{}{"some-out"})
+	m.With("matching-argument").Return("some-out")
 
 	assert.Equal(t, "some-out", filepath.Base("matching-argument"))
 
@@ -67,7 +67,7 @@ func Test_funcMock_ShouldDisableAndRestoreAMock(t *testing.T) {
 	assert.Equal(t, "some-out", filepath.Base("matching-argument"))
 
 	assert.Equal(t, 2, len(m.calls))
-	m.Verify(t, []interface{}{"matching-argument"})
+	m.Verify(t, "matching-argument")
 }
 
 func Test_NewFuncMock(t *testing.T) {
@@ -246,7 +246,7 @@ func Test_funcMock_Return(t *testing.T) {
 				target: reflect.ValueOf(filepath.Base),
 				t:      mockT,
 			}
-			f.Return(tt.args.values)
+			f.Return(tt.args.values...)
 
 			assert.Equal(t, tt.shouldFail, mockT.Failed())
 
@@ -377,7 +377,7 @@ func Test_funcMock_Verify(t *testing.T) {
 				target:     tt.fields.target,
 			}
 			mockT := new(testing.T)
-			m.Verify(mockT, tt.args.in)
+			m.Verify(mockT, tt.args.in...)
 			if mockT.Failed() != tt.shouldFail {
 				if tt.shouldFail {
 					t.Errorf("Verify was expected to fail, but it didn't")
@@ -420,7 +420,7 @@ func Test_funcMock_With(t *testing.T) {
 				target: reflect.ValueOf(filepath.Base),
 				t:      mockT,
 			}
-			got := m.With(tt.args.in)
+			got := m.With(tt.args.in...)
 
 			assert.Equal(t, m, got)
 			if tt.shouldFail != mockT.Failed() {

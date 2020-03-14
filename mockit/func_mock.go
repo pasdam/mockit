@@ -50,7 +50,7 @@ func (f *funcMock) Enable() {
 	f.guard.Restore()
 }
 
-func (f *funcMock) Return(values []interface{}) {
+func (f *funcMock) Return(values ...interface{}) {
 	typeOf := f.target.Type()
 	f.completeMock(f.convertToValuesAndVerifies(values, typeOf.NumOut(), typeOf.Out))
 }
@@ -59,7 +59,7 @@ func (f *funcMock) ReturnDefaults() {
 	f.completeMock(f.defaultOut)
 }
 
-func (f *funcMock) Verify(t *testing.T, in []interface{}) {
+func (f *funcMock) Verify(t *testing.T, in ...interface{}) {
 	inValues := interfacesArrayToValuesArray(in, f.target.Type().In)
 	_, err := findCall(f.calls, inValues, func(fromCalls, in []reflect.Value) bool {
 		return callsMatch(in, fromCalls, true)
@@ -69,7 +69,7 @@ func (f *funcMock) Verify(t *testing.T, in []interface{}) {
 	}
 }
 
-func (f *funcMock) With(values []interface{}) Stub {
+func (f *funcMock) With(values ...interface{}) Stub {
 	typeOf := f.target.Type()
 	f.currentMock = &call{
 		in: f.convertToValuesAndVerifies(values, typeOf.NumIn(), typeOf.In),
