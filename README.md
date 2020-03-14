@@ -17,7 +17,7 @@ Mockit is a library to use during testing for Go application, and aim to make mo
 To mock a function:
 
 ```go
-m := NewFuncMock(t, filepath.Base).(*funcMock)
+m := NewFuncMock(t, filepath.Base)
 m.With("some-argument").Return("result")
 ```
 
@@ -51,7 +51,7 @@ will make `filepath.Base("some-argument")` call the real method.
 It is also possible to use argument matchers, to have generic mocks. At the moment there only one matcher implemented, and it matches any argument:
 
 ```go
-m := NewFuncMock(t, filepath.Base).(*funcMock)
+m := NewFuncMock(t, filepath.Base)
 m.With(argument.any).Return("result")
 ```
 
@@ -62,7 +62,7 @@ This will make `filepath.Base` return `result` for any input.
 It is possible to temporary disable a mock:
 
 ```go
-m := NewFuncMock(t, filepath.Base).(*funcMock)
+m := NewFuncMock(t, filepath.Base)
 m.With("matching-argument").Return("some-out")
 
 // ... Do something with the mock
