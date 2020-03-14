@@ -7,15 +7,15 @@ import (
 // Mock contains methods to mock a call with specified arguments, and verify it
 type Mock interface {
 
-	// Mock mocks the call for the specified arguments
-	Mock(t *testing.T, in []interface{}, out []interface{})
+	// Disable disable the mock, so interactions will be with real objects
+	Disable()
 
-	// Restore restore the mock configuration, unmocked by UnMock
-	Restore()
-
-	// UnMock disable the mock configuration, allowing to call the real method
-	UnMock()
+	// Enable restore the mock
+	Enable()
 
 	// Verify fails the test if a call with the specified arguments wasn't made
 	Verify(t *testing.T, in []interface{})
+
+	// With configures the mock to respond to the specified arguments
+	With(values []interface{}) Stub
 }
