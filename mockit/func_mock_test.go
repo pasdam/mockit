@@ -10,6 +10,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func Test_funcMock_ShouldRemoveTheMockWhenTheTestCompletes(t *testing.T) {
+	absPath, _ := filepath.Abs(".")
+
+	t.Run("", func(t *testing.T) {
+		m := NewFuncMock(t, filepath.Base)
+		m.With(absPath).Return("mock-value")
+
+		assert.Equal(t, "mock-value", filepath.Base(absPath))
+	})
+
+	assert.Equal(t, "mockit", filepath.Base(absPath))
+}
+
 func Test_funcMock_ShouldUseArgumentMatcher(t *testing.T) {
 	m := NewFuncMock(t, filepath.Base).(*funcMock)
 	m.With(argument.Any).Return("result")

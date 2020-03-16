@@ -35,6 +35,8 @@ func NewFuncMock(t *testing.T, targetFn interface{}) Mock {
 
 	mock.guard = monkey.Patch(targetFn, replacement.Interface())
 
+	t.Cleanup(mock.Disable)
+
 	return mock
 }
 

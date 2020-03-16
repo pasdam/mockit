@@ -46,6 +46,8 @@ m.With("some-argument").ReturnDefaults()
 
 will make `filepath.Base("some-argument")` call the real method.
 
+Mocks are *automatically removed* when the test is completed.
+
 ### Argument matcher
 
 It is also possible to use argument matchers, to implement generic behaviors. At the moment there is only one matcher implemented, and it matches any argument:
