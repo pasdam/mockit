@@ -4,6 +4,7 @@
   - [Usage](#usage)
     - [Argument matcher](#argument-matcher)
     - [Pausing and restoring a mock](#pausing-and-restoring-a-mock)
+    - [Verify a call](#verify-a-call)
   - [Development](#development)
     - [TODOs](#todos)
     - [Contributing](#contributing)
@@ -80,6 +81,21 @@ To enable the mock again, just use:
 m.Enable()
 ```
 
+### Verify a call
+
+To verify a specified call happened:
+
+```go
+m := NewFuncMock(t, filepath.Base)
+
+// ... Mock calls
+// ... And use mock
+
+m.Verify("matching-argument")
+```
+
+The `Verify` method will fail the test if the call didn't happen.
+
 ## Development
 
 ### TODOs
@@ -98,6 +114,7 @@ This are (not in a particular order) the missing features that are going to be i
 - [ ] Mock struct methods
   - [ ] [Making sure interaction(s) never happened on mock](https://site.mockito.org/javadoc/current/org/mockito/Mockito.html#never_verification)
   - [ ] [Finding redundant invocations](https://site.mockito.org/javadoc/current/org/mockito/Mockito.html#finding_redundant_invocations)
+- [ ] Improve error messages
 
 ### Contributing
 

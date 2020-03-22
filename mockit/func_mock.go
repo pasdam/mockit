@@ -61,13 +61,13 @@ func (f *funcMock) ReturnDefaults() {
 	f.completeMock(f.defaultOut)
 }
 
-func (f *funcMock) Verify(t *testing.T, in ...interface{}) {
+func (f *funcMock) Verify(in ...interface{}) {
 	inValues := interfacesArrayToValuesArray(in, f.target.Type().In)
 	_, err := findCall(f.calls, inValues, func(fromCalls, in []reflect.Value) bool {
 		return callsMatch(in, fromCalls, true)
 	})
 	if err != nil {
-		t.Error("Excepted call didn't happen")
+		f.t.Error("Excepted call didn't happen")
 	}
 }
 

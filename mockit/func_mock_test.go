@@ -31,9 +31,9 @@ func Test_funcMock_ShouldUseArgumentMatcher(t *testing.T) {
 	assert.Equal(t, "result", filepath.Base("argument-2"))
 	assert.Equal(t, "result", filepath.Base("argument-3"))
 	assert.Equal(t, 3, len(m.calls))
-	m.Verify(t, "argument-1")
-	m.Verify(t, "argument-2")
-	m.Verify(t, "argument-3")
+	m.Verify("argument-1")
+	m.Verify("argument-2")
+	m.Verify("argument-3")
 }
 
 func Test_funcMock_ShouldReturnDefaultOutputIfNoMatchingCallIsFound(t *testing.T) {
@@ -44,7 +44,7 @@ func Test_funcMock_ShouldReturnDefaultOutputIfNoMatchingCallIsFound(t *testing.T
 
 	assert.Equal(t, "", filepath.Base("non-matching-argument"))
 	assert.Equal(t, 1, len(m.calls))
-	m.Verify(t, "non-matching-argument")
+	m.Verify("non-matching-argument")
 }
 
 func Test_funcMock_ShouldReturnAZeroValueIfTheMockArgumentIsNil(t *testing.T) {
@@ -53,7 +53,7 @@ func Test_funcMock_ShouldReturnAZeroValueIfTheMockArgumentIsNil(t *testing.T) {
 
 	assert.Nil(t, filepath.Walk("arg", nil))
 	assert.Equal(t, 1, len(m.calls))
-	m.Verify(t, "arg", nil)
+	m.Verify("arg", nil)
 }
 
 func Test_funcMock_ShouldReturnExpectedOutputIfAMatchingCallIsFound(t *testing.T) {
@@ -62,7 +62,7 @@ func Test_funcMock_ShouldReturnExpectedOutputIfAMatchingCallIsFound(t *testing.T
 
 	assert.Equal(t, "some-out", filepath.Base("matching-argument"))
 	assert.Equal(t, 1, len(m.calls))
-	m.Verify(t, "matching-argument")
+	m.Verify("matching-argument")
 }
 
 func Test_funcMock_ShouldDisableAndRestoreAMock(t *testing.T) {
@@ -80,7 +80,7 @@ func Test_funcMock_ShouldDisableAndRestoreAMock(t *testing.T) {
 	assert.Equal(t, "some-out", filepath.Base("matching-argument"))
 
 	assert.Equal(t, 2, len(m.calls))
-	m.Verify(t, "matching-argument")
+	m.Verify("matching-argument")
 }
 
 func Test_NewFuncMock(t *testing.T) {
@@ -384,13 +384,14 @@ func Test_funcMock_Verify(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			mockT := new(testing.T)
 			m := &funcMock{
 				calls:      tt.fields.calls,
 				defaultOut: tt.fields.defaultOut,
 				target:     tt.fields.target,
+				t:          mockT,
 			}
-			mockT := new(testing.T)
-			m.Verify(mockT, tt.args.in...)
+			m.Verify(tt.args.in...)
 			if mockT.Failed() != tt.shouldFail {
 				if tt.shouldFail {
 					t.Errorf("Verify was expected to fail, but it didn't")
