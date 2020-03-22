@@ -13,6 +13,12 @@
 
 Mockit is a library to use during testing for Go application, and aim to make mocking of functions/methods easy.
 
+Please note that the mocking might not work in some cases if function inlining is enabled, so it might be necessary to disable it during testing:
+
+```sh
+go test -gcflags=-l
+```
+
 ## Usage
 
 To mock a function:
@@ -125,7 +131,9 @@ Rules to contribute to the repo:
 
 ### Internals
 
-This library uses [monkey](https://github.com/bouk/monkey), a package for [monkey patching](https://en.wikipedia.org/wiki/Monkey_patch) in Go.
+This library uses [monkey](https://github.com/bouk/monkey), a package for [monkey patching](https://en.wikipedia.org/wiki/Monkey_patch) in Go. And of course it inherits the [same limitations](https://github.com/bouk/monkey#notes), in particular:
+
+> Monkey sometimes fails to patch a function if inlining is enabled. Try running your tests with inlining disabled, for example: go test -gcflags=-l.
 
 ## Credits
 
