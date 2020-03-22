@@ -24,7 +24,7 @@ go test -gcflags=-l
 To mock a function:
 
 ```go
-m := NewFuncMock(t, filepath.Base)
+m := MockFunc(t, filepath.Base)
 m.With("some-argument").Return("result")
 ```
 
@@ -60,7 +60,7 @@ Mocks are *automatically removed* when the test is completed.
 It is also possible to use argument matchers, to implement generic behaviors. At the moment there is only one matcher implemented, and it matches any argument:
 
 ```go
-m := NewFuncMock(t, filepath.Base)
+m := MockFunc(t, filepath.Base)
 m.With(argument.any).Return("result")
 ```
 
@@ -71,7 +71,7 @@ This will make `filepath.Base` return `result` for any input.
 It is possible to temporary disable a mock:
 
 ```go
-m := NewFuncMock(t, filepath.Base)
+m := MockFunc(t, filepath.Base)
 m.With("matching-argument").Return("some-out")
 
 // ... Do something with the mock
@@ -92,7 +92,7 @@ m.Enable()
 To verify a specified call happened:
 
 ```go
-m := NewFuncMock(t, filepath.Base)
+m := MockFunc(t, filepath.Base)
 
 // ... Mock calls
 // ... And use mock

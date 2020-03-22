@@ -7,7 +7,7 @@ import (
 	"bou.ke/monkey"
 )
 
-type funcMock struct {
+type mockFunc struct {
 	mocks       []*call
 	calls       []*call
 	defaultOut  []reflect.Value
@@ -17,8 +17,8 @@ type funcMock struct {
 	t           *testing.T
 }
 
-// NewFuncMock creates a new Mock to mock a function
-func NewFuncMock(t *testing.T, targetFn interface{}) Mock {
+// MockFunc creates a new Mock to mock a function
+func MockFunc(t *testing.T, targetFn interface{}) Mock {
 	target := reflect.ValueOf(targetFn)
 	if target.Kind() != reflect.Func {
 		// TODO: add unknown type to message
@@ -26,7 +26,7 @@ func NewFuncMock(t *testing.T, targetFn interface{}) Mock {
 		return nil
 	}
 
-	mock := &funcMock{
+	mock := &mockFunc{
 		defaultOut: defaultFuncOutput(target.Type()),
 		target:     target,
 		t:          t,
@@ -41,28 +41,28 @@ func NewFuncMock(t *testing.T, targetFn interface{}) Mock {
 	return mock
 }
 
-func (f *funcMock) CallRealMethod() {
+func (f *mockFunc) CallRealMethod() {
 	f.completeMock(nil)
 }
 
-func (f *funcMock) Disable() {
+func (f *mockFunc) Disable() {
 	f.guard.Unpatch()
 }
 
-func (f *funcMock) Enable() {
+func (f *mockFunc) Enable() {
 	f.guard.Restore()
 }
 
-func (f *funcMock) Return(values ...interface{}) {
+func (f *mockFunc) Return(values ...interface{}) {
 	typeOf := f.target.Type()
 	f.completeMock(f.convertToValuesAndVerifies(values, typeOf.NumOut(), typeOf.Out))
 }
 
-func (f *funcMock) ReturnDefaults() {
+func (f *mockFunc) ReturnDefaults() {
 	f.completeMock(f.defaultOut)
 }
 
-func (f *funcMock) Verify(in ...interface{}) {
+func (f *mockFunc) Verify(in ...interface{}) {
 	inValues := interfacesArrayToValuesArray(in, f.target.Type().In)
 	_, err := findCall(f.calls, inValues, func(fromCalls, in []reflect.Value) bool {
 		return callsMatch(in, fromCalls, true)
@@ -72,7 +72,7 @@ func (f *funcMock) Verify(in ...interface{}) {
 	}
 }
 
-func (f *funcMock) With(values ...interface{}) Stub {
+func (f *mockFunc) With(values ...interface{}) Stub {
 	typeOf := f.target.Type()
 	f.currentMock = &call{
 		in: f.convertToValuesAndVerifies(values, typeOf.NumIn(), typeOf.In),
@@ -80,13 +80,13 @@ func (f *funcMock) With(values ...interface{}) Stub {
 	return f
 }
 
-func (f *funcMock) completeMock(out []reflect.Value) {
+func (f *mockFunc) completeMock(out []reflect.Value) {
 	f.currentMock.out = out
 	f.mocks = append(f.mocks, f.currentMock)
 	f.currentMock = nil
 }
 
-func (f *funcMock) convertToValuesAndVerifies(values []interface{}, expectedValuesCount int, expectedValueProvider func(int) reflect.Type) []reflect.Value {
+func (f *mockFunc) convertToValuesAndVerifies(values []interface{}, expectedValuesCount int, expectedValueProvider func(int) reflect.Type) []reflect.Value {
 	result := interfacesArrayToValuesArray(values, expectedValueProvider)
 
 	err := verifyValues(expectedValuesCount, expectedValueProvider, result)
@@ -98,7 +98,7 @@ func (f *funcMock) convertToValuesAndVerifies(values []interface{}, expectedValu
 	return result
 }
 
-func (f *funcMock) makeCall(in []reflect.Value) []reflect.Value {
+func (f *mockFunc) makeCall(in []reflect.Value) []reflect.Value {
 	// record call
 	f.calls = append(f.calls, &call{
 		in: in,

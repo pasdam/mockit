@@ -10,11 +10,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_funcMock_ShouldRemoveTheMockWhenTheTestCompletes(t *testing.T) {
+func Test_mockFunc_ShouldRemoveTheMockWhenTheTestCompletes(t *testing.T) {
 	absPath, _ := filepath.Abs(".")
 
 	t.Run("", func(t *testing.T) {
-		m := NewFuncMock(t, filepath.Base)
+		m := MockFunc(t, filepath.Base)
 		m.With(absPath).Return("mock-value")
 
 		assert.Equal(t, "mock-value", filepath.Base(absPath))
@@ -23,8 +23,8 @@ func Test_funcMock_ShouldRemoveTheMockWhenTheTestCompletes(t *testing.T) {
 	assert.Equal(t, "mockit", filepath.Base(absPath))
 }
 
-func Test_funcMock_ShouldUseArgumentMatcher(t *testing.T) {
-	m := NewFuncMock(t, filepath.Base).(*funcMock)
+func Test_mockFunc_ShouldUseArgumentMatcher(t *testing.T) {
+	m := MockFunc(t, filepath.Base).(*mockFunc)
 	m.With(argument.Any).Return("result")
 
 	assert.Equal(t, "result", filepath.Base("argument-1"))
@@ -36,8 +36,8 @@ func Test_funcMock_ShouldUseArgumentMatcher(t *testing.T) {
 	m.Verify("argument-3")
 }
 
-func Test_funcMock_ShouldReturnDefaultOutputIfNoMatchingCallIsFound(t *testing.T) {
-	m := NewFuncMock(t, filepath.Base).(*funcMock)
+func Test_mockFunc_ShouldReturnDefaultOutputIfNoMatchingCallIsFound(t *testing.T) {
+	m := MockFunc(t, filepath.Base).(*mockFunc)
 	m.With("argument-1").Return("out-1")
 	m.With("argument-2").Return("out-2")
 	m.With("argument-3").Return("out-3")
@@ -47,8 +47,8 @@ func Test_funcMock_ShouldReturnDefaultOutputIfNoMatchingCallIsFound(t *testing.T
 	m.Verify("non-matching-argument")
 }
 
-func Test_funcMock_ShouldReturnAZeroValueIfTheMockArgumentIsNil(t *testing.T) {
-	m := NewFuncMock(t, filepath.Walk).(*funcMock)
+func Test_mockFunc_ShouldReturnAZeroValueIfTheMockArgumentIsNil(t *testing.T) {
+	m := MockFunc(t, filepath.Walk).(*mockFunc)
 	m.With("arg", nil).Return(nil)
 
 	assert.Nil(t, filepath.Walk("arg", nil))
@@ -56,8 +56,8 @@ func Test_funcMock_ShouldReturnAZeroValueIfTheMockArgumentIsNil(t *testing.T) {
 	m.Verify("arg", nil)
 }
 
-func Test_funcMock_ShouldReturnExpectedOutputIfAMatchingCallIsFound(t *testing.T) {
-	m := NewFuncMock(t, filepath.Base).(*funcMock)
+func Test_mockFunc_ShouldReturnExpectedOutputIfAMatchingCallIsFound(t *testing.T) {
+	m := MockFunc(t, filepath.Base).(*mockFunc)
 	m.With("matching-argument").Return("some-out")
 
 	assert.Equal(t, "some-out", filepath.Base("matching-argument"))
@@ -65,8 +65,8 @@ func Test_funcMock_ShouldReturnExpectedOutputIfAMatchingCallIsFound(t *testing.T
 	m.Verify("matching-argument")
 }
 
-func Test_funcMock_ShouldDisableAndRestoreAMock(t *testing.T) {
-	m := NewFuncMock(t, filepath.Base).(*funcMock)
+func Test_mockFunc_ShouldDisableAndRestoreAMock(t *testing.T) {
+	m := MockFunc(t, filepath.Base).(*mockFunc)
 	m.With("matching-argument").Return("some-out")
 
 	assert.Equal(t, "some-out", filepath.Base("matching-argument"))
@@ -83,7 +83,7 @@ func Test_funcMock_ShouldDisableAndRestoreAMock(t *testing.T) {
 	m.Verify("matching-argument")
 }
 
-func Test_NewFuncMock(t *testing.T) {
+func Test_MockFunc(t *testing.T) {
 	type args struct {
 		t      *testing.T
 		target interface{}
@@ -113,22 +113,22 @@ func Test_NewFuncMock(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockT := new(testing.T)
-			got := NewFuncMock(mockT, tt.args.target)
+			got := MockFunc(mockT, tt.args.target)
 			if tt.shouldFail {
 				if !mockT.Failed() {
-					t.Fatalf("NewFuncMock was expected to fail, but it didn't")
+					t.Fatalf("NewmockFunc was expected to fail, but it didn't")
 				}
 				if got != nil {
-					t.Fatalf("NewFuncMock was expected to return nil, but it was %v", got)
+					t.Fatalf("NewmockFunc was expected to return nil, but it was %v", got)
 				}
 			} else {
 				if mockT.Failed() {
-					t.Fatalf("NewFuncMock wasn't expected to fail, but it did")
+					t.Fatalf("NewmockFunc wasn't expected to fail, but it did")
 				}
 				if got == nil {
-					t.Fatalf("NewFuncMock was expected to return a valid object, but it was nil")
+					t.Fatalf("NewmockFunc was expected to return a valid object, but it was nil")
 				}
-				m := got.(*funcMock)
+				m := got.(*mockFunc)
 				assert.Equal(t, mockT, m.t)
 				assert.True(t, reflect.DeepEqual(reflect.ValueOf(tt.args.target), m.target))
 				assert.Equal(t, len(tt.defaultOut), len(m.defaultOut))
@@ -140,7 +140,7 @@ func Test_NewFuncMock(t *testing.T) {
 	}
 }
 
-func Test_funcMock_CallRealMethod(t *testing.T) {
+func Test_mockFunc_CallRealMethod(t *testing.T) {
 	type fields struct {
 		mocks []*call
 	}
@@ -163,7 +163,7 @@ func Test_funcMock_CallRealMethod(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			f := &funcMock{
+			f := &mockFunc{
 				mocks: tt.fields.mocks,
 				currentMock: &call{
 					in: []reflect.Value{reflect.ValueOf("some-arg")},
@@ -184,7 +184,7 @@ func Test_funcMock_CallRealMethod(t *testing.T) {
 	}
 }
 
-func Test_funcMock_Return(t *testing.T) {
+func Test_mockFunc_Return(t *testing.T) {
 	type args struct {
 		values []interface{}
 	}
@@ -252,7 +252,7 @@ func Test_funcMock_Return(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			in := []reflect.Value{reflect.ValueOf("some-arg")}
 			mockT := new(testing.T)
-			f := &funcMock{
+			f := &mockFunc{
 				mocks: tt.fields.mocks,
 				currentMock: &call{
 					in: in,
@@ -280,7 +280,7 @@ func Test_funcMock_Return(t *testing.T) {
 	}
 }
 
-func Test_funcMock_ReturnDefaults(t *testing.T) {
+func Test_mockFunc_ReturnDefaults(t *testing.T) {
 	type fields struct {
 		mocks      []*call
 		defaultOut []reflect.Value
@@ -304,7 +304,7 @@ func Test_funcMock_ReturnDefaults(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			f := &funcMock{
+			f := &mockFunc{
 				mocks: tt.fields.mocks,
 				currentMock: &call{
 					in: []reflect.Value{reflect.ValueOf("some-arg")},
@@ -325,7 +325,7 @@ func Test_funcMock_ReturnDefaults(t *testing.T) {
 	}
 }
 
-func Test_funcMock_Verify(t *testing.T) {
+func Test_mockFunc_Verify(t *testing.T) {
 	type fields struct {
 		calls      []*call
 		defaultOut []reflect.Value
@@ -386,7 +386,7 @@ func Test_funcMock_Verify(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockT := new(testing.T)
-			m := &funcMock{
+			m := &mockFunc{
 				calls:      tt.fields.calls,
 				defaultOut: tt.fields.defaultOut,
 				target:     tt.fields.target,
@@ -404,7 +404,7 @@ func Test_funcMock_Verify(t *testing.T) {
 	}
 }
 
-func Test_funcMock_With(t *testing.T) {
+func Test_mockFunc_With(t *testing.T) {
 	type args struct {
 		in []interface{}
 	}
@@ -431,7 +431,7 @@ func Test_funcMock_With(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockT := new(testing.T)
-			m := &funcMock{
+			m := &mockFunc{
 				target: reflect.ValueOf(filepath.Base),
 				t:      mockT,
 			}
@@ -460,7 +460,7 @@ func Test_funcMock_With(t *testing.T) {
 	}
 }
 
-func Test_funcMock_makeCall(t *testing.T) {
+func Test_mockFunc_makeCall(t *testing.T) {
 	type fields struct {
 		mocks      []*call
 		defaultOut []reflect.Value
@@ -516,7 +516,7 @@ func Test_funcMock_makeCall(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			guard := monkey.Patch(filepath.Base, func(string) string { return "wrong-result" })
-			m := &funcMock{
+			m := &mockFunc{
 				mocks:      tt.fields.mocks,
 				defaultOut: tt.fields.defaultOut,
 				target:     reflect.ValueOf(filepath.Base),
@@ -532,8 +532,8 @@ func Test_funcMock_makeCall(t *testing.T) {
 	}
 }
 
-func Test_funcMock_makeCall_shouldRecordMultipleCalls(t *testing.T) {
-	m := NewFuncMock(t, filepath.Base).(*funcMock)
+func Test_mockFunc_makeCall_shouldRecordMultipleCalls(t *testing.T) {
+	m := MockFunc(t, filepath.Base).(*mockFunc)
 
 	filepath.Base("arg-0")
 	filepath.Base("arg-1")
