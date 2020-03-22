@@ -1,6 +1,7 @@
 # mockit
 
 - [mockit](#mockit)
+  - [Notes](#notes)
   - [Usage](#usage)
     - [Argument matcher](#argument-matcher)
     - [Pausing and restoring a mock](#pausing-and-restoring-a-mock)
@@ -13,7 +14,11 @@
 
 Mockit is a library to use during testing for Go application, and aim to make mocking of functions/methods easy.
 
-Please note that the mocking might not work in some cases if function inlining is enabled, so it might be necessary to disable it during testing:
+## Notes
+
+This is still a working in progress so **API might change** before reaching a stable state.
+
+Also please note that the **mocking might not work** in some cases if function inlining is enabled, so it might be necessary to disable it during testing:
 
 ```sh
 go test -gcflags=-l
@@ -108,6 +113,8 @@ The `Verify` method will fail the test if the call didn't happen.
 
 This are (not in a particular order) the missing features that are going to be implemented in a not well defined future (patches are welcome):
 
+- [ ] Mock struct methods
+- [ ] Mock interfaces
 - [ ] [Verify in order calls](https://site.mockito.org/javadoc/current/org/mockito/Mockito.html#in_order_verification)
 - [ ] [Verifying exact number of invocations / at least x / never](https://site.mockito.org/javadoc/current/org/mockito/Mockito.html#at_least_verification)
 - [Arguments matcher](https://site.mockito.org/javadoc/current/index.html?org/mockito/ArgumentMatcher.html)
@@ -117,7 +124,6 @@ This are (not in a particular order) the missing features that are going to be i
 - [ ] [Stubbing with callbacks](https://site.mockito.org/javadoc/current/org/mockito/Mockito.html#answer_stubs)
 - [ ] Mock [variadic function](https://gobyexample.com/variadic-functions)
 - [ ] Override existing mock, i.e. change return values of a stub
-- [ ] Mock struct methods
   - [ ] [Making sure interaction(s) never happened on mock](https://site.mockito.org/javadoc/current/org/mockito/Mockito.html#never_verification)
   - [ ] [Finding redundant invocations](https://site.mockito.org/javadoc/current/org/mockito/Mockito.html#finding_redundant_invocations)
 - [ ] Improve error messages
