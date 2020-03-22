@@ -142,7 +142,7 @@ func Test_MockFunc(t *testing.T) {
 
 func Test_mockFunc_CallRealMethod(t *testing.T) {
 	type fields struct {
-		mocks []*call
+		mocks []*funcCall
 	}
 	tests := []struct {
 		name   string
@@ -157,7 +157,7 @@ func Test_mockFunc_CallRealMethod(t *testing.T) {
 		{
 			name: "Second mock",
 			fields: fields{
-				mocks: []*call{&call{}},
+				mocks: []*funcCall{&funcCall{}},
 			},
 		},
 	}
@@ -165,7 +165,7 @@ func Test_mockFunc_CallRealMethod(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			f := &mockFunc{
 				mocks: tt.fields.mocks,
-				currentMock: &call{
+				currentMock: &funcCall{
 					in: []reflect.Value{reflect.ValueOf("some-arg")},
 				},
 			}
@@ -189,7 +189,7 @@ func Test_mockFunc_Return(t *testing.T) {
 		values []interface{}
 	}
 	type fields struct {
-		mocks []*call
+		mocks []*funcCall
 	}
 	tests := []struct {
 		name       string
@@ -210,7 +210,7 @@ func Test_mockFunc_Return(t *testing.T) {
 		{
 			name: "Second mock",
 			fields: fields{
-				mocks: []*call{&call{}},
+				mocks: []*funcCall{&funcCall{}},
 			},
 			args: args{
 				values: []interface{}{"out-2"},
@@ -220,7 +220,7 @@ func Test_mockFunc_Return(t *testing.T) {
 		{
 			name: "Wrong return type",
 			fields: fields{
-				mocks: []*call{&call{}},
+				mocks: []*funcCall{&funcCall{}},
 			},
 			args: args{
 				values: []interface{}{100},
@@ -230,7 +230,7 @@ func Test_mockFunc_Return(t *testing.T) {
 		{
 			name: "Not enough return values",
 			fields: fields{
-				mocks: []*call{&call{}},
+				mocks: []*funcCall{&funcCall{}},
 			},
 			args: args{
 				values: []interface{}{},
@@ -240,7 +240,7 @@ func Test_mockFunc_Return(t *testing.T) {
 		{
 			name: "Too many return values",
 			fields: fields{
-				mocks: []*call{&call{}},
+				mocks: []*funcCall{&funcCall{}},
 			},
 			args: args{
 				values: []interface{}{"out-0", "out-1"},
@@ -254,7 +254,7 @@ func Test_mockFunc_Return(t *testing.T) {
 			mockT := new(testing.T)
 			f := &mockFunc{
 				mocks: tt.fields.mocks,
-				currentMock: &call{
+				currentMock: &funcCall{
 					in: in,
 				},
 				target: reflect.ValueOf(filepath.Base),
@@ -282,7 +282,7 @@ func Test_mockFunc_Return(t *testing.T) {
 
 func Test_mockFunc_ReturnDefaults(t *testing.T) {
 	type fields struct {
-		mocks      []*call
+		mocks      []*funcCall
 		defaultOut []reflect.Value
 	}
 	tests := []struct {
@@ -298,7 +298,7 @@ func Test_mockFunc_ReturnDefaults(t *testing.T) {
 		{
 			name: "Second mock",
 			fields: fields{
-				mocks: []*call{&call{}},
+				mocks: []*funcCall{&funcCall{}},
 			},
 		},
 	}
@@ -306,7 +306,7 @@ func Test_mockFunc_ReturnDefaults(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			f := &mockFunc{
 				mocks: tt.fields.mocks,
-				currentMock: &call{
+				currentMock: &funcCall{
 					in: []reflect.Value{reflect.ValueOf("some-arg")},
 				},
 			}
@@ -327,7 +327,7 @@ func Test_mockFunc_ReturnDefaults(t *testing.T) {
 
 func Test_mockFunc_Verify(t *testing.T) {
 	type fields struct {
-		calls      []*call
+		calls      []*funcCall
 		defaultOut []reflect.Value
 		target     reflect.Value
 	}
@@ -355,7 +355,7 @@ func Test_mockFunc_Verify(t *testing.T) {
 		{
 			name: "Called with a different argument",
 			fields: fields{
-				calls: []*call{&call{
+				calls: []*funcCall{&funcCall{
 					in:  []reflect.Value{reflect.ValueOf("some-arg")},
 					out: []reflect.Value{reflect.ValueOf("mocked-out-value")},
 				}},
@@ -370,7 +370,7 @@ func Test_mockFunc_Verify(t *testing.T) {
 		{
 			name: "Called",
 			fields: fields{
-				calls: []*call{&call{
+				calls: []*funcCall{&funcCall{
 					in:  []reflect.Value{reflect.ValueOf("some-arg")},
 					out: []reflect.Value{reflect.ValueOf("mocked-out-value")},
 				}},
@@ -462,7 +462,7 @@ func Test_mockFunc_With(t *testing.T) {
 
 func Test_mockFunc_makeCall(t *testing.T) {
 	type fields struct {
-		mocks      []*call
+		mocks      []*funcCall
 		defaultOut []reflect.Value
 	}
 	type args struct {
@@ -489,7 +489,7 @@ func Test_mockFunc_makeCall(t *testing.T) {
 		{
 			name: "Mocked output",
 			fields: fields{
-				mocks: []*call{&call{
+				mocks: []*funcCall{&funcCall{
 					in:  []reflect.Value{reflect.ValueOf("some-arg")},
 					out: []reflect.Value{reflect.ValueOf("mocked-out-value")},
 				}},
@@ -502,7 +502,7 @@ func Test_mockFunc_makeCall(t *testing.T) {
 		{
 			name: "Real method",
 			fields: fields{
-				mocks: []*call{&call{
+				mocks: []*funcCall{&funcCall{
 					in:  []reflect.Value{reflect.ValueOf("../mockit/func_mock_test.go")},
 					out: nil,
 				}},

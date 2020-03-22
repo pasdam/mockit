@@ -4,7 +4,7 @@ import (
 	"reflect"
 )
 
-type call struct {
+type funcCall struct {
 	in  []reflect.Value
 	out []reflect.Value
 }

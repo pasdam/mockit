@@ -8,12 +8,12 @@ import (
 )
 
 type mockFunc struct {
-	mocks       []*call
-	calls       []*call
+	mocks       []*funcCall
+	calls       []*funcCall
 	defaultOut  []reflect.Value
 	target      reflect.Value
 	guard       *monkey.PatchGuard
-	currentMock *call
+	currentMock *funcCall
 	t           *testing.T
 }
 
@@ -74,7 +74,7 @@ func (f *mockFunc) Verify(in ...interface{}) {
 
 func (f *mockFunc) With(values ...interface{}) Stub {
 	typeOf := f.target.Type()
-	f.currentMock = &call{
+	f.currentMock = &funcCall{
 		in: f.convertToValuesAndVerifies(values, typeOf.NumIn(), typeOf.In),
 	}
 	return f
@@ -100,7 +100,7 @@ func (f *mockFunc) convertToValuesAndVerifies(values []interface{}, expectedValu
 
 func (f *mockFunc) makeCall(in []reflect.Value) []reflect.Value {
 	// record call
-	f.calls = append(f.calls, &call{
+	f.calls = append(f.calls, &funcCall{
 		in: in,
 	})
 
