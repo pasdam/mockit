@@ -129,6 +129,7 @@ func Test_NewFuncMock(t *testing.T) {
 					t.Fatalf("NewFuncMock was expected to return a valid object, but it was nil")
 				}
 				m := got.(*funcMock)
+				assert.Equal(t, mockT, m.t)
 				assert.True(t, reflect.DeepEqual(reflect.ValueOf(tt.args.target), m.target))
 				assert.Equal(t, len(tt.defaultOut), len(m.defaultOut))
 				for i := 0; i < len(tt.defaultOut); i++ {

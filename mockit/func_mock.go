@@ -29,6 +29,7 @@ func NewFuncMock(t *testing.T, targetFn interface{}) Mock {
 	mock := &funcMock{
 		defaultOut: defaultFuncOutput(target.Type()),
 		target:     target,
+		t:          t,
 	}
 
 	replacement := reflect.MakeFunc(reflect.TypeOf(targetFn), mock.makeCall)
