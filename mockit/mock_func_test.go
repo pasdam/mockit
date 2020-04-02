@@ -164,7 +164,9 @@ func Test_mockFunc_CallRealMethod(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := &mockFunc{
-				mocks: tt.fields.mocks,
+				funcMockData: funcMockData{
+					mocks: tt.fields.mocks,
+				},
 				currentMock: &funcCall{
 					in: []reflect.Value{reflect.ValueOf("some-arg")},
 				},
@@ -253,12 +255,14 @@ func Test_mockFunc_Return(t *testing.T) {
 			in := []reflect.Value{reflect.ValueOf("some-arg")}
 			mockT := new(testing.T)
 			f := &mockFunc{
-				mocks: tt.fields.mocks,
+				funcMockData: funcMockData{
+					mocks:  tt.fields.mocks,
+					target: reflect.ValueOf(filepath.Base),
+					t:      mockT,
+				},
 				currentMock: &funcCall{
 					in: in,
 				},
-				target: reflect.ValueOf(filepath.Base),
-				t:      mockT,
 			}
 			f.Return(tt.args.values...)
 
@@ -305,7 +309,9 @@ func Test_mockFunc_ReturnDefaults(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := &mockFunc{
-				mocks: tt.fields.mocks,
+				funcMockData: funcMockData{
+					mocks: tt.fields.mocks,
+				},
 				currentMock: &funcCall{
 					in: []reflect.Value{reflect.ValueOf("some-arg")},
 				},
@@ -387,10 +393,12 @@ func Test_mockFunc_Verify(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mockT := new(testing.T)
 			m := &mockFunc{
-				calls:      tt.fields.calls,
+				funcMockData: funcMockData{
+					calls:  tt.fields.calls,
+					target: tt.fields.target,
+					t:      mockT,
+				},
 				defaultOut: tt.fields.defaultOut,
-				target:     tt.fields.target,
-				t:          mockT,
 			}
 			m.Verify(tt.args.in...)
 			if mockT.Failed() != tt.shouldFail {
@@ -432,8 +440,10 @@ func Test_mockFunc_With(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mockT := new(testing.T)
 			m := &mockFunc{
-				target: reflect.ValueOf(filepath.Base),
-				t:      mockT,
+				funcMockData: funcMockData{
+					target: reflect.ValueOf(filepath.Base),
+					t:      mockT,
+				},
 			}
 			got := m.With(tt.args.in...)
 
@@ -515,41 +525,25 @@ func Test_mockFunc_makeCall(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			guard := monkey.Patch(filepath.Base, func(string) string { return "wrong-result" })
 			m := &mockFunc{
-				mocks:      tt.fields.mocks,
+				funcMockData: funcMockData{
+					mocks:  tt.fields.mocks,
+					target: reflect.ValueOf(filepath.Base),
+				},
 				defaultOut: tt.fields.defaultOut,
-				target:     reflect.ValueOf(filepath.Base),
-				guard:      guard,
 			}
+			m.guard = monkey.Patch(makeCall, func(mock *funcMockData, in []reflect.Value, defaultOut []reflect.Value, guard *monkey.PatchGuard) []reflect.Value {
+				assert.Equal(t, &m.funcMockData, mock)
+				assert.True(t, callsMatch(tt.args.in, in, true))
+				assert.True(t, callsMatch(tt.fields.defaultOut, defaultOut, true))
+				assert.Equal(t, m.guard, guard)
+				return tt.want
+			})
+			defer m.guard.Unpatch()
+
 			if got := m.makeCall(tt.args.in); !callsMatch(got, tt.want, true) {
 				t.Errorf("mockFunc.makeCall() = %v, want %v", got, tt.want)
 			}
-			assert.Equal(t, 1, len(m.calls))
-			assert.Equal(t, tt.args.in, m.calls[0].in)
-			assert.Nil(t, m.calls[0].out)
 		})
 	}
-}
-
-func Test_mockFunc_makeCall_shouldRecordMultipleCalls(t *testing.T) {
-	m := MockFunc(t, filepath.Base).(*mockFunc)
-
-	filepath.Base("arg-0")
-	filepath.Base("arg-1")
-	filepath.Base("arg-2")
-
-	assert.Equal(t, 3, len(m.calls))
-
-	assert.Equal(t, 1, len(m.calls[0].in))
-	assert.Equal(t, "arg-0", m.calls[0].in[0].String())
-	assert.Nil(t, m.calls[0].out)
-
-	assert.Equal(t, 1, len(m.calls[1].in))
-	assert.Equal(t, "arg-1", m.calls[1].in[0].String())
-	assert.Nil(t, m.calls[1].out)
-
-	assert.Equal(t, 1, len(m.calls[2].in))
-	assert.Equal(t, "arg-2", m.calls[2].in[0].String())
-	assert.Nil(t, m.calls[2].out)
 }

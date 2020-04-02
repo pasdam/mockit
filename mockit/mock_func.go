@@ -8,13 +8,11 @@ import (
 )
 
 type mockFunc struct {
-	mocks       []*funcCall
-	calls       []*funcCall
-	defaultOut  []reflect.Value
-	target      reflect.Value
-	guard       *monkey.PatchGuard
+	funcMockData
+
 	currentMock *funcCall
-	t           *testing.T
+	defaultOut  []reflect.Value
+	guard       *monkey.PatchGuard
 }
 
 // MockFunc creates a new Mock to mock a function
@@ -28,8 +26,10 @@ func MockFunc(t *testing.T, targetFn interface{}) Mock {
 
 	mock := &mockFunc{
 		defaultOut: defaultFuncOutput(target.Type()),
-		target:     target,
-		t:          t,
+		funcMockData: funcMockData{
+			target: target,
+			t:      t,
+		},
 	}
 
 	replacement := reflect.MakeFunc(reflect.TypeOf(targetFn), mock.makeCall)
@@ -99,26 +99,5 @@ func (f *mockFunc) convertToValuesAndVerifies(values []interface{}, expectedValu
 }
 
 func (f *mockFunc) makeCall(in []reflect.Value) []reflect.Value {
-	// record call
-	f.calls = append(f.calls, &funcCall{
-		in: in,
-	})
-
-	index, err := findCall(f.mocks, in, func(fromCalls, in []reflect.Value) bool {
-		return callsMatch(fromCalls, in, true)
-	})
-	if err == nil { // mock exists
-		if f.mocks[index].out == nil {
-			// disable mock
-			f.guard.Unpatch()
-			defer f.guard.Restore()
-
-			// call real method
-			return f.target.Call(in)
-		}
-		// return expected values
-		return f.mocks[index].out
-	}
-
-	return f.defaultOut
+	return makeCall(&f.funcMockData, in, f.defaultOut, f.guard)
 }
