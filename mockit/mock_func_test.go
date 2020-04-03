@@ -10,6 +10,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func Test_MockFunc_ShouldReturnExpectedValueForTheReadmeExample(t *testing.T) {
+	// NOTE: if this fails (i.e. the contract changed), please update the README as well
+	m := MockFunc(t, filepath.Base)
+	m.With("some-argument").Return("result")
+	assert.Equal(t, "result", filepath.Base("some-argument"))
+}
+
 func Test_mockFunc_ShouldRemoveTheMockWhenTheTestCompletes(t *testing.T) {
 	absPath, _ := filepath.Abs(".")
 

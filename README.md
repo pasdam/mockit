@@ -35,6 +35,14 @@ m.With("some-argument").Return("result")
 
 This will make sure that when `filepath.Base` is called with the argument `some-argument`, it will return `result`.
 
+To mock an instance method:
+
+```go
+err := errors.New("some-error")
+m := MockMethod(t, err, err.Error)
+m.With().Return("some-other-value")
+```
+
 When a method is mocked and a matching call is not found (i.e. arguments are different) it will return the zero values.
 
 It is possible to make the mock call the real method:
@@ -113,7 +121,6 @@ The `Verify` method will fail the test if the call didn't happen.
 
 This are (not in a particular order) the missing features that are going to be implemented in a not well defined future (patches are welcome):
 
-- [ ] Mock struct methods
 - [ ] Mock interfaces
 - [ ] [Verify in order calls](https://site.mockito.org/javadoc/current/org/mockito/Mockito.html#in_order_verification)
 - [ ] [Verifying exact number of invocations / at least x / never](https://site.mockito.org/javadoc/current/org/mockito/Mockito.html#at_least_verification)
