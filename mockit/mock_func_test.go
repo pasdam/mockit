@@ -166,9 +166,9 @@ func Test_mockFunc_CallRealMethod(t *testing.T) {
 			f := &mockFunc{
 				funcMockData: funcMockData{
 					mocks: tt.fields.mocks,
-				},
-				currentMock: &funcCall{
-					in: []reflect.Value{reflect.ValueOf("some-arg")},
+					currentMock: &funcCall{
+						in: []reflect.Value{reflect.ValueOf("some-arg")},
+					},
 				},
 			}
 			f.CallRealMethod()
@@ -186,102 +186,24 @@ func Test_mockFunc_CallRealMethod(t *testing.T) {
 	}
 }
 
-func Test_mockFunc_Return(t *testing.T) {
-	type args struct {
-		values []interface{}
-	}
-	type fields struct {
-		mocks []*funcCall
-	}
-	tests := []struct {
-		name       string
-		fields     fields
-		args       args
-		shouldFail bool
-	}{
-		{
-			name: "First mock",
-			fields: fields{
-				mocks: nil,
-			},
-			args: args{
-				values: []interface{}{"out-1"},
-			},
-			shouldFail: false,
-		},
-		{
-			name: "Second mock",
-			fields: fields{
-				mocks: []*funcCall{&funcCall{}},
-			},
-			args: args{
-				values: []interface{}{"out-2"},
-			},
-			shouldFail: false,
-		},
-		{
-			name: "Wrong return type",
-			fields: fields{
-				mocks: []*funcCall{&funcCall{}},
-			},
-			args: args{
-				values: []interface{}{100},
-			},
-			shouldFail: true,
-		},
-		{
-			name: "Not enough return values",
-			fields: fields{
-				mocks: []*funcCall{&funcCall{}},
-			},
-			args: args{
-				values: []interface{}{},
-			},
-			shouldFail: true,
-		},
-		{
-			name: "Too many return values",
-			fields: fields{
-				mocks: []*funcCall{&funcCall{}},
-			},
-			args: args{
-				values: []interface{}{"out-0", "out-1"},
-			},
-			shouldFail: true,
+func Test_mockFunc_Return_ShouldCallConfigureMockReturn(t *testing.T) {
+	expectedMock := &mockFunc{
+		funcMockData: funcMockData{
+			t: t,
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			in := []reflect.Value{reflect.ValueOf("some-arg")}
-			mockT := new(testing.T)
-			f := &mockFunc{
-				funcMockData: funcMockData{
-					mocks:  tt.fields.mocks,
-					target: reflect.ValueOf(filepath.Base),
-					t:      mockT,
-				},
-				currentMock: &funcCall{
-					in: in,
-				},
-			}
-			f.Return(tt.args.values...)
+	expectedIn := []interface{}{"some-in"}
+	called := false
+	guard := monkey.Patch(configureMockReturn, func(f *funcMockData, in ...interface{}) {
+		assert.Equal(t, &expectedMock.funcMockData, f)
+		assert.Equal(t, expectedIn, in)
+		called = true
+	})
+	defer guard.Unpatch()
 
-			assert.Equal(t, tt.shouldFail, mockT.Failed())
+	expectedMock.Return(expectedIn...)
 
-			if !tt.shouldFail {
-				expectedMockIndex := len(tt.fields.mocks)
-				assert.Equal(t, expectedMockIndex+1, len(f.mocks))
-				assert.Equal(t, in, f.mocks[expectedMockIndex].in)
-
-				assert.Equal(t, 1, len(f.mocks[expectedMockIndex].out))
-				assert.Equal(t, tt.args.values[0], f.mocks[expectedMockIndex].out[0].String())
-
-				assert.Nil(t, f.calls)
-				assert.Nil(t, f.defaultOut)
-				assert.Nil(t, f.guard)
-			}
-		})
-	}
+	assert.True(t, called)
 }
 
 func Test_mockFunc_ReturnDefaults(t *testing.T) {
@@ -311,9 +233,9 @@ func Test_mockFunc_ReturnDefaults(t *testing.T) {
 			f := &mockFunc{
 				funcMockData: funcMockData{
 					mocks: tt.fields.mocks,
-				},
-				currentMock: &funcCall{
-					in: []reflect.Value{reflect.ValueOf("some-arg")},
+					currentMock: &funcCall{
+						in: []reflect.Value{reflect.ValueOf("some-arg")},
+					},
 				},
 			}
 			f.ReturnDefaults()
@@ -331,143 +253,44 @@ func Test_mockFunc_ReturnDefaults(t *testing.T) {
 	}
 }
 
-func Test_mockFunc_Verify(t *testing.T) {
-	type fields struct {
-		calls      []*funcCall
-		defaultOut []reflect.Value
-		target     reflect.Value
-	}
-	type args struct {
-		in []interface{}
-	}
-	tests := []struct {
-		name       string
-		fields     fields
-		args       args
-		shouldFail bool
-	}{
-		{
-			name: "Not called",
-			fields: fields{
-				calls:      nil,
-				defaultOut: []reflect.Value{reflect.ValueOf("default-out-value")},
-				target:     reflect.ValueOf(filepath.Base),
-			},
-			args: args{
-				in: []interface{}{"some-arg"},
-			},
-			shouldFail: true,
-		},
-		{
-			name: "Called with a different argument",
-			fields: fields{
-				calls: []*funcCall{&funcCall{
-					in:  []reflect.Value{reflect.ValueOf("some-arg")},
-					out: []reflect.Value{reflect.ValueOf("mocked-out-value")},
-				}},
-				defaultOut: []reflect.Value{reflect.ValueOf("default-out-value")},
-				target:     reflect.ValueOf(filepath.Base),
-			},
-			args: args{
-				in: []interface{}{"some-other-arg"},
-			},
-			shouldFail: true,
-		},
-		{
-			name: "Called",
-			fields: fields{
-				calls: []*funcCall{&funcCall{
-					in:  []reflect.Value{reflect.ValueOf("some-arg")},
-					out: []reflect.Value{reflect.ValueOf("mocked-out-value")},
-				}},
-				defaultOut: []reflect.Value{reflect.ValueOf("default-out-value")},
-				target:     reflect.ValueOf(filepath.Base),
-			},
-			args: args{
-				in: []interface{}{"some-arg"},
-			},
-			shouldFail: false,
+func Test_mockFunc_Verify_ShouldCallVerifyCallWithProvidedParameters(t *testing.T) {
+	expectedMock := &mockFunc{
+		funcMockData: funcMockData{
+			t: t,
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			mockT := new(testing.T)
-			m := &mockFunc{
-				funcMockData: funcMockData{
-					calls:  tt.fields.calls,
-					target: tt.fields.target,
-					t:      mockT,
-				},
-				defaultOut: tt.fields.defaultOut,
-			}
-			m.Verify(tt.args.in...)
-			if mockT.Failed() != tt.shouldFail {
-				if tt.shouldFail {
-					t.Errorf("Verify was expected to fail, but it didn't")
-				} else {
-					t.Errorf("Verify wasn't expected to fail, but it did")
-				}
-			}
-		})
-	}
+	expectedIn := []interface{}{"some-in"}
+	called := false
+	guard := monkey.Patch(verifyCall, func(f *funcMockData, in ...interface{}) {
+		assert.Equal(t, &expectedMock.funcMockData, f)
+		assert.Equal(t, expectedIn, in)
+		called = true
+	})
+	defer guard.Unpatch()
+
+	expectedMock.Verify(expectedIn...)
+
+	assert.True(t, called)
 }
 
-func Test_mockFunc_With(t *testing.T) {
-	type args struct {
-		in []interface{}
-	}
-	tests := []struct {
-		name       string
-		args       args
-		shouldFail bool
-	}{
-		{
-			name: "Invalid arguments",
-			args: args{
-				in: []interface{}{"some-in", "some-additional-in"},
-			},
-			shouldFail: true,
-		},
-		{
-			name: "Valid arguments",
-			args: args{
-				in: []interface{}{"some-in"},
-			},
-			shouldFail: false,
+func Test_mockFunc_With_ShouldCallConfigureMockWithAndReturnItself(t *testing.T) {
+	expectedMock := &mockFunc{
+		funcMockData: funcMockData{
+			t: t,
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			mockT := new(testing.T)
-			m := &mockFunc{
-				funcMockData: funcMockData{
-					target: reflect.ValueOf(filepath.Base),
-					t:      mockT,
-				},
-			}
-			got := m.With(tt.args.in...)
+	expectedIn := []interface{}{"some-in"}
+	called := false
+	guard := monkey.Patch(configureMockWith, func(f *funcMockData, values ...interface{}) {
+		assert.Equal(t, &expectedMock.funcMockData, f)
+		assert.Equal(t, expectedIn, values)
+		called = true
+	})
+	defer guard.Unpatch()
 
-			assert.Equal(t, m, got)
-			if tt.shouldFail != mockT.Failed() {
-				if tt.shouldFail {
-					t.Errorf("Verify was expected to fail, but it didn't")
-				} else {
-					t.Errorf("Verify wasn't expected to fail, but it did")
-				}
-			}
-			assert.Equal(t, 0, len(m.mocks))
-			assert.NotNil(t, m.currentMock)
-			if tt.shouldFail == false {
-				assert.Equal(t, len(tt.args.in), len(m.currentMock.in))
-				for i := 0; i < len(tt.args.in); i++ {
-					assert.Equal(t, tt.args.in[i], m.currentMock.in[i].Interface())
-				}
-			} else {
-				assert.Nil(t, m.currentMock.in)
-			}
-			assert.Nil(t, m.currentMock.out)
-		})
-	}
+	expectedMock.With(expectedIn...)
+
+	assert.True(t, called)
 }
 
 func Test_mockFunc_makeCall(t *testing.T) {
@@ -527,10 +350,10 @@ func Test_mockFunc_makeCall(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			m := &mockFunc{
 				funcMockData: funcMockData{
-					mocks:  tt.fields.mocks,
-					target: reflect.ValueOf(filepath.Base),
+					defaultOut: tt.fields.defaultOut,
+					mocks:      tt.fields.mocks,
+					target:     reflect.ValueOf(filepath.Base),
 				},
-				defaultOut: tt.fields.defaultOut,
 			}
 			m.guard = monkey.Patch(makeCall, func(mock *funcMockData, in []reflect.Value, defaultOut []reflect.Value, guard *monkey.PatchGuard) []reflect.Value {
 				assert.Equal(t, &m.funcMockData, mock)

@@ -10,9 +10,7 @@ import (
 type mockFunc struct {
 	funcMockData
 
-	currentMock *funcCall
-	defaultOut  []reflect.Value
-	guard       *monkey.PatchGuard
+	guard *monkey.PatchGuard
 }
 
 // MockFunc creates a new Mock to mock a function
@@ -25,10 +23,10 @@ func MockFunc(t *testing.T, targetFn interface{}) Mock {
 	}
 
 	mock := &mockFunc{
-		defaultOut: defaultFuncOutput(target.Type()),
 		funcMockData: funcMockData{
-			target: target,
-			t:      t,
+			defaultOut: defaultFuncOutput(target.Type()),
+			target:     target,
+			t:          t,
 		},
 	}
 
@@ -54,8 +52,7 @@ func (f *mockFunc) Enable() {
 }
 
 func (f *mockFunc) Return(values ...interface{}) {
-	typeOf := f.target.Type()
-	f.completeMock(f.convertToValuesAndVerifies(values, typeOf.NumOut(), typeOf.Out))
+	configureMockReturn(&f.funcMockData, values...)
 }
 
 func (f *mockFunc) ReturnDefaults() {
@@ -63,39 +60,12 @@ func (f *mockFunc) ReturnDefaults() {
 }
 
 func (f *mockFunc) Verify(in ...interface{}) {
-	inValues := interfacesArrayToValuesArray(in, f.target.Type().In)
-	_, err := findCall(f.calls, inValues, func(fromCalls, in []reflect.Value) bool {
-		return callsMatch(in, fromCalls, true)
-	})
-	if err != nil {
-		f.t.Error("Excepted call didn't happen")
-	}
+	verifyCall(&f.funcMockData, in...)
 }
 
 func (f *mockFunc) With(values ...interface{}) Stub {
-	typeOf := f.target.Type()
-	f.currentMock = &funcCall{
-		in: f.convertToValuesAndVerifies(values, typeOf.NumIn(), typeOf.In),
-	}
+	configureMockWith(&f.funcMockData, values...)
 	return f
-}
-
-func (f *mockFunc) completeMock(out []reflect.Value) {
-	f.currentMock.out = out
-	f.mocks = append(f.mocks, f.currentMock)
-	f.currentMock = nil
-}
-
-func (f *mockFunc) convertToValuesAndVerifies(values []interface{}, expectedValuesCount int, expectedValueProvider func(int) reflect.Type) []reflect.Value {
-	result := interfacesArrayToValuesArray(values, expectedValueProvider)
-
-	err := verifyValues(expectedValuesCount, expectedValueProvider, result)
-	if err != nil {
-		f.t.Errorf("Invalid arguments. %s", err.Error())
-		return nil
-	}
-
-	return result
 }
 
 func (f *mockFunc) makeCall(in []reflect.Value) []reflect.Value {
