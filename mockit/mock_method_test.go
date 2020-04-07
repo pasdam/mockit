@@ -21,6 +21,16 @@ func Test_MockMethod_ShouldReturnExpectedValueForTheReadmeExample(t *testing.T) 
 	assert.Equal(t, "some-other-value", err.Error())
 }
 
+func Test_MockMethod_ShouldMockOnlyTheSpecifiedInstance(t *testing.T) {
+	err1 := errors.New("some-error")
+	m := MockMethod(t, err1, err1.Error)
+	m.With().Return("some-other-value")
+	assert.Equal(t, "some-other-value", err1.Error())
+
+	err2 := errors.New("some-other-error")
+	assert.Equal(t, "some-other-error", err2.Error())
+}
+
 func TestMockMethod(t *testing.T) {
 	instance := &mockMethodTest{}
 	emg := &mockMethodGuard{
