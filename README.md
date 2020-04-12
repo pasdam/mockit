@@ -35,7 +35,7 @@ m.With("some-argument").Return("result")
 
 This will make sure that when `filepath.Base` is called with the argument `some-argument`, it will return `result`.
 
-To mock an instance method:
+To mock an instance method (at the moment only exported methods are supported):
 
 ```go
 err := errors.New("some-error")
@@ -121,6 +121,7 @@ The `Verify` method will fail the test if the call didn't happen.
 
 This are (not in a particular order) the missing features that are going to be implemented in a not well defined future (patches are welcome):
 
+- [ ] Mock unexported methods
 - [ ] Mock interfaces
 - [ ] [Verify in order calls](https://site.mockito.org/javadoc/current/org/mockito/Mockito.html#in_order_verification)
 - [ ] [Verifying exact number of invocations / at least x / never](https://site.mockito.org/javadoc/current/org/mockito/Mockito.html#at_least_verification)
