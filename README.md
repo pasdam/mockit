@@ -4,6 +4,7 @@
   - [Notes](#notes)
   - [Usage](#usage)
     - [Argument matcher](#argument-matcher)
+      - [Capture argument](#capture-argument)
     - [Pausing and restoring a mock](#pausing-and-restoring-a-mock)
     - [Verify a call](#verify-a-call)
   - [Development](#development)
@@ -78,6 +79,19 @@ m.With(argument.any).Return("result")
 ```
 
 This will make `filepath.Base` return `result` for any input.
+
+#### Capture argument
+
+To capture the argument of a call:
+
+```go
+m := MockFunc(t, filepath.Base)
+c := argument.Captor{}
+m.With(c.Capture).Return("result")
+filepath.Base("some-argument")
+```
+
+At this point `c.Value` will be `some argument`.
 
 ### Pausing and restoring a mock
 
