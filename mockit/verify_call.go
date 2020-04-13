@@ -10,6 +10,6 @@ func verifyCall(f *funcMockData, in ...interface{}) {
 		return callsMatch(in, fromCalls, true)
 	})
 	if err != nil {
-		f.t.Error("Excepted call didn't happen")
+		f.t.Error("Expected call didn't happen")
 	}
 }
