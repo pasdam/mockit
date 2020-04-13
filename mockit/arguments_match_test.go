@@ -57,6 +57,24 @@ func Test_argumentsMatch(t *testing.T) {
 			want: false,
 		},
 		{
+			name: "Equal func",
+			args: args{
+				expected:      reflect.ValueOf(argumentsMatch),
+				actual:        reflect.ValueOf(argumentsMatch),
+				enableMatcher: true,
+			},
+			want: true,
+		},
+		{
+			name: "Different func",
+			args: args{
+				expected:      reflect.ValueOf(argumentsMatch),
+				actual:        reflect.ValueOf(Test_argumentsMatch),
+				enableMatcher: true,
+			},
+			want: false,
+		},
+		{
 			name: "Matcher matches",
 			args: args{
 				expected:      reflect.ValueOf(argument.Any),

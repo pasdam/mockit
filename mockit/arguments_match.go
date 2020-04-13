@@ -14,6 +14,11 @@ func argumentsMatch(expected reflect.Value, actual reflect.Value, enableMatcher 
 		return true
 	}
 
+	equal = expected.Kind() == reflect.Func && actual.Kind() == reflect.Func && expected.Pointer() == actual.Pointer()
+	if equal {
+		return true
+	}
+
 	if enableMatcher && expected.Type().AssignableTo(matcherType) {
 		return expected.Call([]reflect.Value{actual})[0].Bool()
 	}
