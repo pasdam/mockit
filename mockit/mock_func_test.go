@@ -173,7 +173,7 @@ func Test_mockFunc_CallRealMethod(t *testing.T) {
 		{
 			name: "Second mock",
 			fields: fields{
-				mocks: []*funcCall{&funcCall{}},
+				mocks: []*funcCall{{}},
 			},
 		},
 	}
@@ -240,7 +240,7 @@ func Test_mockFunc_ReturnDefaults(t *testing.T) {
 		{
 			name: "Second mock",
 			fields: fields{
-				mocks: []*funcCall{&funcCall{}},
+				mocks: []*funcCall{{}},
 			},
 		},
 	}
@@ -338,7 +338,7 @@ func Test_mockFunc_makeCall(t *testing.T) {
 		{
 			name: "Mocked output",
 			fields: fields{
-				mocks: []*funcCall{&funcCall{
+				mocks: []*funcCall{{
 					in:  []reflect.Value{reflect.ValueOf("some-arg")},
 					out: []reflect.Value{reflect.ValueOf("mocked-out-value")},
 				}},
@@ -351,7 +351,7 @@ func Test_mockFunc_makeCall(t *testing.T) {
 		{
 			name: "Real method",
 			fields: fields{
-				mocks: []*funcCall{&funcCall{
+				mocks: []*funcCall{{
 					in:  []reflect.Value{reflect.ValueOf("../mockit/func_mock_test.go")},
 					out: nil,
 				}},

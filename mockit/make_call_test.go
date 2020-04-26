@@ -36,7 +36,7 @@ func Test_makeCall(t *testing.T) {
 			name: "Mocked output",
 			args: args{
 				mock: &funcMockData{
-					mocks: []*funcCall{&funcCall{
+					mocks: []*funcCall{{
 						in:  []reflect.Value{reflect.ValueOf("some-arg")},
 						out: []reflect.Value{reflect.ValueOf("mocked-out-value")},
 					}},
@@ -49,7 +49,7 @@ func Test_makeCall(t *testing.T) {
 			name: "Real method",
 			args: args{
 				mock: &funcMockData{
-					mocks: []*funcCall{&funcCall{
+					mocks: []*funcCall{{
 						in:  []reflect.Value{reflect.ValueOf("../mockit/func_mock_test.go")},
 						out: nil,
 					}},

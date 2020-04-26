@@ -35,7 +35,7 @@ func Test_findCall(t *testing.T) {
 		{
 			name: "Call found",
 			fields: fields{
-				calls: []*funcCall{&funcCall{
+				calls: []*funcCall{{
 					in: []reflect.Value{reflect.ValueOf("some-arg")},
 				}},
 			},
@@ -48,7 +48,7 @@ func Test_findCall(t *testing.T) {
 		{
 			name: "Call with different number of arguments",
 			fields: fields{
-				calls: []*funcCall{&funcCall{
+				calls: []*funcCall{{
 					in: []reflect.Value{reflect.ValueOf("some-arg"), reflect.ValueOf("some-other-arg")},
 				}},
 			},

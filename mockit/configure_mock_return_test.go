@@ -34,7 +34,7 @@ func Test_configureMockReturn(t *testing.T) {
 		{
 			name: "Second mock",
 			fields: fields{
-				mocks: []*funcCall{&funcCall{}},
+				mocks: []*funcCall{{}},
 			},
 			args: args{
 				values: []interface{}{"out-2"},
@@ -44,7 +44,7 @@ func Test_configureMockReturn(t *testing.T) {
 		{
 			name: "Wrong return type",
 			fields: fields{
-				mocks: []*funcCall{&funcCall{}},
+				mocks: []*funcCall{{}},
 			},
 			args: args{
 				values: []interface{}{100},
@@ -54,7 +54,7 @@ func Test_configureMockReturn(t *testing.T) {
 		{
 			name: "Not enough return values",
 			fields: fields{
-				mocks: []*funcCall{&funcCall{}},
+				mocks: []*funcCall{{}},
 			},
 			args: args{
 				values: []interface{}{},
@@ -64,7 +64,7 @@ func Test_configureMockReturn(t *testing.T) {
 		{
 			name: "Too many return values",
 			fields: fields{
-				mocks: []*funcCall{&funcCall{}},
+				mocks: []*funcCall{{}},
 			},
 			args: args{
 				values: []interface{}{"out-0", "out-1"},

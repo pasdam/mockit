@@ -36,7 +36,7 @@ func Test_verifyCall(t *testing.T) {
 		{
 			name: "Called with a different argument",
 			fields: fields{
-				calls: []*funcCall{&funcCall{
+				calls: []*funcCall{{
 					in:  []reflect.Value{reflect.ValueOf("some-arg")},
 					out: []reflect.Value{reflect.ValueOf("mocked-out-value")},
 				}},
@@ -51,7 +51,7 @@ func Test_verifyCall(t *testing.T) {
 		{
 			name: "Called",
 			fields: fields{
-				calls: []*funcCall{&funcCall{
+				calls: []*funcCall{{
 					in:  []reflect.Value{reflect.ValueOf("some-arg")},
 					out: []reflect.Value{reflect.ValueOf("mocked-out-value")},
 				}},

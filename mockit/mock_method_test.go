@@ -205,7 +205,7 @@ func Test_mockMethod_CallRealMethod(t *testing.T) {
 		{
 			name: "Second mock",
 			fields: fields{
-				mocks: []*funcCall{&funcCall{}},
+				mocks: []*funcCall{{}},
 			},
 		},
 	}
@@ -287,7 +287,7 @@ func Test_mockMethod_ReturnDefaults(t *testing.T) {
 		{
 			name: "Second mock",
 			fields: fields{
-				mocks: []*funcCall{&funcCall{}},
+				mocks: []*funcCall{{}},
 			},
 		},
 	}

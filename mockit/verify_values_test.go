@@ -61,7 +61,7 @@ func Test_verify_values(t *testing.T) {
 			args: args{
 				expectedCount:         1,
 				expectedValueProvider: reflect.TypeOf(os.Setenv).Out,
-				actualValues:          []reflect.Value{reflect.Value{}},
+				actualValues:          []reflect.Value{{}},
 			},
 			wantErr: nil,
 		},
@@ -70,7 +70,7 @@ func Test_verify_values(t *testing.T) {
 			args: args{
 				expectedCount:         1,
 				expectedValueProvider: reflect.TypeOf(os.Environ).Out,
-				actualValues:          []reflect.Value{reflect.Value{}},
+				actualValues:          []reflect.Value{{}},
 			},
 			wantErr: nil,
 		},
@@ -79,7 +79,7 @@ func Test_verify_values(t *testing.T) {
 			args: args{
 				expectedCount:         1,
 				expectedValueProvider: reflect.TypeOf(os.Getpid).Out,
-				actualValues:          []reflect.Value{reflect.Value{}},
+				actualValues:          []reflect.Value{{}},
 			},
 			wantErr: errors.New("Cannot assign nil at index 0 to the type int"),
 		},
