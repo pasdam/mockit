@@ -137,6 +137,7 @@ This are (not in a particular order) the missing features that are going to be i
 
 - [ ] Mock unexported methods
 - [ ] Mock interfaces
+- [ ] Mock a method for all instances
 - [ ] Automatically verify at the end of the test, without having to call `verify` method
 - [ ] [Verify in order calls](https://site.mockito.org/javadoc/current/org/mockito/Mockito.html#in_order_verification)
 - [ ] [Verifying exact number of invocations / at least x / never](https://site.mockito.org/javadoc/current/org/mockito/Mockito.html#at_least_verification)
