@@ -49,6 +49,27 @@ func Test_verifyCall(t *testing.T) {
 			shouldFail: true,
 		},
 		{
+			name: "Called multiple times with different arguments",
+			fields: fields{
+				calls: []*funcCall{
+					{
+						in:  []reflect.Value{reflect.ValueOf("some-arg-1")},
+						out: []reflect.Value{reflect.ValueOf("mocked-out-value-1")},
+					},
+					{
+						in:  []reflect.Value{reflect.ValueOf("some-arg-2")},
+						out: []reflect.Value{reflect.ValueOf("mocked-out-value-2")},
+					},
+				},
+				defaultOut: []reflect.Value{reflect.ValueOf("default-out-value")},
+				target:     reflect.ValueOf(filepath.Base),
+			},
+			args: args{
+				in: []interface{}{"some-other-arg"},
+			},
+			shouldFail: true,
+		},
+		{
 			name: "Called",
 			fields: fields{
 				calls: []*funcCall{{
@@ -72,7 +93,10 @@ func Test_verifyCall(t *testing.T) {
 				target: tt.fields.target,
 				t:      mockT,
 			}
+
 			verifyCall(m, tt.args.in...)
+
+			// TODO: verify log message
 			if mockT.Failed() != tt.shouldFail {
 				if tt.shouldFail {
 					t.Errorf("Verify was expected to fail, but it didn't")
