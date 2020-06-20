@@ -7,6 +7,7 @@
       - [Capture argument](#capture-argument)
     - [Pausing and restoring a mock](#pausing-and-restoring-a-mock)
     - [Verify a call](#verify-a-call)
+    - [Update the library](#update-the-library)
   - [Development](#development)
     - [TODOs](#todos)
     - [Contributing](#contributing)
@@ -128,6 +129,14 @@ m.Verify("matching-argument")
 ```
 
 The `Verify` method will fail the test if the call didn't happen.
+
+### Update the library
+
+To update the library to the latest version simply run:
+
+```sh
+go get -u github.com/pasdam/mockit
+```
 
 ## Development
 
