@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"bou.ke/monkey"
+	"github.com/pasdam/mockit/internal/utils"
 )
 
 type mockMethodGuard struct {
@@ -16,7 +17,7 @@ type mockMethodGuard struct {
 }
 
 func newMockMethodGuard(t *testing.T, fullyQualifiedName string, method reflect.Value, instance interface{}) *mockMethodGuard {
-	methodName := getMethodName(fullyQualifiedName)
+	methodName := utils.MethodName(fullyQualifiedName)
 
 	instanceType := reflect.TypeOf(instance)
 

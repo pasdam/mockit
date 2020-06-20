@@ -1,12 +1,13 @@
-package mockit
+package utils_test
 
 import (
 	"testing"
 
+	"github.com/pasdam/mockit/internal/utils"
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_getMethodName(t *testing.T) {
+func Test_MethodName(t *testing.T) {
 	type args struct {
 		fullyQualifiedName string
 	}
@@ -47,7 +48,7 @@ func Test_getMethodName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			methodName := getMethodName(tt.args.fullyQualifiedName)
+			methodName := utils.MethodName(tt.args.fullyQualifiedName)
 
 			assert.Equal(t, tt.want, methodName)
 		})

@@ -2,8 +2,9 @@ package mockit
 
 import (
 	"reflect"
-	"runtime"
 	"testing"
+
+	"github.com/pasdam/mockit/internal/utils"
 )
 
 var methodMocksMap = make(map[string]*mockMethodGuard)
@@ -31,7 +32,7 @@ func MockMethod(t *testing.T, instance interface{}, method interface{}) Mock {
 		return nil
 	}
 
-	fullyQualifiedName := runtime.FuncForPC(methodValue.Pointer()).Name()
+	fullyQualifiedName := utils.MethodFullyQualifiedName(methodValue)
 
 	methodMockGuard, ok := methodMocksMap[fullyQualifiedName]
 	if !ok {
