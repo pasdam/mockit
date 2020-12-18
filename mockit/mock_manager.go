@@ -18,7 +18,7 @@ type mockManager struct {
 
 type patcherProvider func(guard *mockGuard) func(instance interface{}) (*monkey.PatchGuard, callMetadataProvider)
 
-func (m *mockManager) mock(t *testing.T, instance interface{}, targetFn interface{}, provider patcherProvider) Mock {
+func (m *mockManager) mock(t *testing.T, any bool, instance interface{}, targetFn interface{}, provider patcherProvider) Mock {
 	if targetFn == nil {
 		t.Error("Method can't be nil")
 		return nil
@@ -50,7 +50,12 @@ func (m *mockManager) mock(t *testing.T, instance interface{}, targetFn interfac
 		})
 	}
 
-	mock := guard.mockedInstances[instance]
+	var key interface{}
+	if !any {
+		key = instance
+	}
+
+	mock := guard.mockedInstances[key]
 	if mock == nil {
 		mock = &instanceMock{
 			calls:       nil,
@@ -60,7 +65,7 @@ func (m *mockManager) mock(t *testing.T, instance interface{}, targetFn interfac
 			t:           t,
 			target:      &target,
 		}
-		guard.mockedInstances[instance] = mock
+		guard.mockedInstances[key] = mock
 	}
 
 	return mock
@@ -70,12 +75,19 @@ func (m *mockManager) MockFunc(t *testing.T, targetFn interface{}) Mock {
 	provider := func(guard *mockGuard) func(instance interface{}) (*monkey.PatchGuard, callMetadataProvider) {
 		return guard.patchFunc
 	}
-	return m.mock(t, nil, targetFn, provider)
+	return m.mock(t, false, nil, targetFn, provider)
 }
 
 func (m *mockManager) MockMethod(t *testing.T, instance interface{}, targetFn interface{}) Mock {
 	provider := func(guard *mockGuard) func(instance interface{}) (*monkey.PatchGuard, callMetadataProvider) {
 		return guard.patchMethod
 	}
-	return m.mock(t, instance, targetFn, provider)
+	return m.mock(t, false, instance, targetFn, provider)
+}
+
+func (m *mockManager) MockMethodForAll(t *testing.T, instance interface{}, targetFn interface{}) Mock {
+	provider := func(guard *mockGuard) func(instance interface{}) (*monkey.PatchGuard, callMetadataProvider) {
+		return guard.patchMethod
+	}
+	return m.mock(t, true, instance, targetFn, provider)
 }

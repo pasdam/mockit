@@ -24,6 +24,9 @@ func (g *mockGuard) makeCall(in []reflect.Value) []reflect.Value {
 
 	mock, found := g.mockedInstances[instance]
 	if !found {
+		mock, found = g.mockedInstances[nil]
+	}
+	if !found {
 		if realTarget == nil {
 			log.Fatal("Unexpected error: mocked func/method not found and real target is nil, unable to perform call")
 		}

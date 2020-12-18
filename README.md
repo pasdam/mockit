@@ -53,6 +53,14 @@ m := MockMethod(t, err, err.Error)
 m.With().Return("some-other-value")
 ```
 
+To mock a method for all the instances of a type:
+
+```go
+err := errors.New("some-error")
+m := MockMethodForAll(t, err, err.Error)
+m.With().Return("some-other-value")
+```
+
 When a method is mocked and a matching call is not found (i.e. arguments are
 different) it will return the zero values.
 
@@ -157,7 +165,6 @@ implemented in a not well defined future (patches are welcome):
 
 - [ ] Mock unexported methods
 - [ ] Mock interfaces
-- [ ] Mock a method for all instances
 - [ ] Automatically verify at the end of the test, without having to call
   `verify` method
 - [ ] [Verify in order calls](https://site.mockito.org/javadoc/current/org/mockito/Mockito.html#in_order_verification)

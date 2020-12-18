@@ -20,7 +20,7 @@ func Test_mockManager_mock_shouldFailTestIfTargetFunctionIsNil(t *testing.T) {
 	mockT := new(testing.T)
 	instance := "some-instance"
 
-	manager.mock(mockT, instance, nil, emptyProvider)
+	manager.mock(mockT, false, instance, nil, emptyProvider)
 
 	assert.True(t, mockT.Failed())
 }
@@ -32,7 +32,7 @@ func Test_mockManager_mock_shouldFailTestIfTargetIsNotAFunction(t *testing.T) {
 	mockT := new(testing.T)
 	instance := "some-instance"
 
-	manager.mock(mockT, instance, "some-non-func-target", emptyProvider)
+	manager.mock(mockT, false, instance, "some-non-func-target", emptyProvider)
 
 	assert.True(t, mockT.Failed())
 }
