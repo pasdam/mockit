@@ -9,10 +9,10 @@ import (
 )
 
 // PrintCall prints the specified method call
-func PrintCall(target reflect.Value, in []reflect.Value) string {
+func PrintCall(target *reflect.Value, in []reflect.Value) string {
 	var str strings.Builder
 
-	str.WriteString(utils.MethodName(utils.MethodFullyQualifiedName(target)))
+	str.WriteString(utils.MethodName(utils.MethodFullyQualifiedName(*target)))
 	str.WriteString("(")
 	if len(in) > 0 {
 		str.WriteString(fmt.Sprintf("%+v", in[0]))

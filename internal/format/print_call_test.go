@@ -72,7 +72,7 @@ func Test_printCall(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := format.PrintCall(tt.args.target, tt.args.in)
+			got := format.PrintCall(&tt.args.target, tt.args.in)
 
 			assert.Equal(t, tt.want, got)
 		})
