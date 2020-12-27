@@ -2,7 +2,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/pasdam/mockit)](https://goreportcard.com/report/github.com/pasdam/mockit)
 [![CI Status](https://github.com/pasdam/mockit/workflows/Continuous%20integration/badge.svg)](https://github.com/pasdam/mockit/actions)
-[![GoDoc](https://godoc.org/github.com/pasdam/mockit?status.svg)](https://godoc.org/github.com/pasdam/mockit)
+[![GoDoc](https://pkg.go.dev/github.com/pasdam/mockit/mockit?status.svg)](https://pkg.go.dev/github.com/pasdam/mockit/mockit)
 
 - [mockit](#mockit)
   - [Notes](#notes)
