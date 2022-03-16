@@ -1,14 +1,14 @@
-version: 2
-updates:
-  - package-ecosystem: "gitsubmodule"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "gomod"
-    directory: "/"
-    schedule:
-      interval: "daily"
+"updates":
+- "directory": "/"
+  "package-ecosystem": "github-actions"
+  "schedule":
+    "interval": "monthly"
+- "directory": "/"
+  "package-ecosystem": "gitsubmodule"
+  "schedule":
+    "interval": "monthly"
+- "directory": "/"
+  "package-ecosystem": "gomod"
+  "schedule":
+    "interval": "monthly"
+"version": 2
