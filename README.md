@@ -33,6 +33,9 @@ inlining is enabled, so it might be necessary to disable it during testing:
 go test -gcflags=-l
 ```
 
+Finally this library currently supports `amd64` platforms only, so `ARM` ones
+are not supported yet.
+
 ## Usage
 
 To mock a function:
